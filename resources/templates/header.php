@@ -12,6 +12,7 @@
 
 		<!-- Bootstrap -->
 		<link href="/resources/library/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+		<link href="/css/style.css" rel="stylesheet">
 
 		<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
 		<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -30,21 +31,21 @@
 					<span class="icon-bar"></span>
 					<span class="icon-bar"></span>
 				</button>
-				<a href="#" class="navbar-brand">Haze</a>
+				<a href="index.php" class="navbar-brand">Haze</a>
 			</div>
 			<!-- Collection of nav links and other content for toggling -->
 			<div id="navbarCollapse" class="collapse navbar-collapse">
 				<ul class="nav navbar-nav">
-					<li class="active"><a href="#">Home</a></li>
+					<li class="active"><a href="index.php">Home</a></li>
 					<li><a href="#">Your Game List</a></li>
 					<li><a href="#">Reviews</a></li>
 				</ul>
 				<ul class="nav navbar-nav navbar-right">
 					<li><a href="#">Log in</a></li>
 					<li>
-						<button type="button" class="btn btn-success navbar-btn">
-							<a href="#">Sign up</a>
-						</button>
+						<p class="navbar-btn">
+						<a class="btn btn-success" href="signup.php">Sign up</a>
+						</p>
 					</li>
 				</ul>
 			</div>
