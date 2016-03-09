@@ -14,7 +14,7 @@ require_once(TEMPLATES_PATH . "/header.php");
 		<h1>Track your game progress with Haze.</h1>
 		<p>Haze makes it easy to keep tabs on how far you're progressing with your video and computer game collection.</p>
 		<p>
-			<a href="#"  class = "btn btn-primary btn-lg" role = "button">Sign up now</a>
+			<a href="signup.php"  class = "btn btn-primary btn-lg" role = "button">Sign up now</a>
 		</p>
 	</div>
 </div>
