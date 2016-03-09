@@ -6,8 +6,6 @@ $page_keywords = array("game collection", "video game tracker", "track games", "
 /* Note: Always load the config file for each page */
 require_once("resources/config.php");
 require_once(TEMPLATES_PATH . "/header.php");
-
-//include("resources/templates/header.php");
 ?>
 
 <!-- Insert content here -->
