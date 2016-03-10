@@ -3,8 +3,8 @@
 				<div class="col-lg-12">
 					<ul class="nav nav-pills nav-justified">
 						<li><a href="/">© 2016 Haze</a></li>
-						<li><a href="#">Terms of Service</a></li>
-						<li><a href="#">Privacy</a></li>
+						<li><a href="terms.php">Terms of Service</a></li>
+						<li><a href="privacy.php">Privacy</a></li>
 					</ul>
 				</div>
 			</div>
