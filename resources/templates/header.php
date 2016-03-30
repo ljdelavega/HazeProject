@@ -41,7 +41,7 @@
 					<li><a href="#">Reviews</a></li>
 				</ul>
 				<ul class="nav navbar-nav navbar-right">
-					<li><a href="#">Log in</a></li>
+					<li><a href="login.php">Log in</a></li>
 					<li>
 						<p class="navbar-btn">
 						<a class="btn btn-success" href="signup.php">Sign up</a>
