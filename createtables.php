@@ -23,8 +23,7 @@ list_id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 password VARCHAR(20) NOT NULL,
 firstname VARCHAR(30) NOT NULL,
 lastname VARCHAR(30) NOT NULL,
-email VARCHAR(50),
-reg_date TIMESTAMP
+email VARCHAR(50)
 )";
 
 if ($conn->query($sql) === TRUE) {
