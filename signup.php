@@ -1,4 +1,4 @@
-<?php 
+<?php
 $page_title = "Create your free Haze account";
 $page_description = "Sign up for Haze and make keeping track of your video game collection easy. Everything is in one place, and you can log your progress whenever you want.";
 $page_keywords = array("game collection", "video game tracker", "track games", "track game", "video games", "computer games", "free", "steam", "origin", "ea origin", "valve games", "half-life", "backloggery", "grouvee");
@@ -6,6 +6,7 @@ $page_keywords = array("game collection", "video game tracker", "track games", "
 /* Note: Always load the config file for each page */
 require_once("resources/config.php");
 require_once(TEMPLATES_PATH . "/header.php");
+require_once(LIBRARY_PATH . "/formvalidator.php");
 ?>
 
 <!-- Insert content here -->
