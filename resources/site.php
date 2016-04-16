@@ -53,7 +53,6 @@ class Site
         $this->pwd  = $pwd;
         $this->database  = $database;
         $this->tablename = $tablename;
-
     }
 
     function SetWebsiteName($sitename)
@@ -299,7 +298,7 @@ class Site
 
     function HandleDBError($err)
     {
-        $this->HandleError($err."\r\n mysqlerror:".mysql_error());
+        $this->HandleError($err."\r\n mysqlerror:". mysqli_error($this->connection));
     }
 
     function GetFromAddress()
@@ -333,15 +332,15 @@ class Site
         $pwdmd5 = md5($password);
         $qry = "Select name, email from $this->tablename where username='$username' and password='$pwdmd5' and confirmcode='y'";
 
-        $result = mysql_query($qry,$this->connection);
+        $result = mysqli_query($qry,$this->connection);
 
-        if(!$result || mysql_num_rows($result) <= 0)
+        if(!$result || mysqli_num_rows($result) <= 0)
         {
             $this->HandleError("Error logging in. The username or password does not match");
             return false;
         }
 
-        $row = mysql_fetch_assoc($result);
+        $row = mysqli_fetch_assoc($result);
 
 
         $_SESSION['name_of_user']  = $row['name'];
@@ -359,19 +358,19 @@ class Site
         }
         $confirmcode = $this->SanitizeForSQL($_GET['code']);
 
-        $result = mysql_query("Select name, email from $this->tablename where confirmcode='$confirmcode'",$this->connection);
-        if(!$result || mysql_num_rows($result) <= 0)
+        $result = mysqli_query("Select name, email from $this->tablename where confirmcode='$confirmcode'",$this->connection);
+        if(!$result || mysqli_num_rows($result) <= 0)
         {
             $this->HandleError("Wrong confirm code.");
             return false;
         }
-        $row = mysql_fetch_assoc($result);
+        $row = mysqli_fetch_assoc($result);
         $user_rec['name'] = $row['name'];
         $user_rec['email']= $row['email'];
 
         $qry = "Update $this->tablename Set confirmcode='y' Where  confirmcode='$confirmcode'";
 
-        if(!mysql_query( $qry ,$this->connection))
+        if(!mysqli_query( $qry ,$this->connection))
         {
             $this->HandleDBError("Error inserting data to the table\nquery:$qry");
             return false;
@@ -396,7 +395,7 @@ class Site
 
         $qry = "Update $this->tablename Set password='".md5($newpwd)."' Where  id_user=".$user_rec['id_user']."";
 
-        if(!mysql_query( $qry ,$this->connection))
+        if(!mysqli_query( $qry ,$this->connection))
         {
             $this->HandleDBError("Error updating the password \nquery:$qry");
             return false;
@@ -413,14 +412,14 @@ class Site
         }
         $email = $this->SanitizeForSQL($email);
 
-        $result = mysql_query("Select * from $this->tablename where email='$email'",$this->connection);
+        $result = mysqli_query("Select * from $this->tablename where email='$email'",$this->connection);
 
-        if(!$result || mysql_num_rows($result) <= 0)
+        if(!$result || mysqli_num_rows($result) <= 0)
         {
             $this->HandleError("There is no user with email: $email");
             return false;
         }
-        $user_rec = mysql_fetch_assoc($result);
+        $user_rec = mysqli_fetch_assoc($result);
 
 
         return true;
@@ -510,12 +509,13 @@ class Site
         }
 
         $validator = new FormValidator();
-        $validator->addValidation("name","req","Please fill in Name");
-        $validator->addValidation("email","email","The input for Email should be a valid email value");
-        $validator->addValidation("email","req","Please fill in Email");
-        $validator->addValidation("username","req","Please fill in Username");
-        $validator->addValidation("password","req","Please fill in Password");
-
+        $validator->addValidation("username","req","Please provide your username!");
+        $validator->addValidation("first_name","req","Please provide your first name!");
+        $validator->addValidation("last_name","req","Please provide your last name!");
+        $validator->addValidation("input_email","req","Please provide your email address!");
+        $validator->addValidation("input_email","email","Please provide a valid email address!");
+        $validator->addValidation("password","req","Please provide a password!");
+        $validator->addValidation("password_reconfirm","req","Please confirm your password!");
 
         if(!$validator->ValidateForm())
         {
@@ -534,10 +534,12 @@ class Site
 //TODO: Fix this for our registration form
     function CollectRegistrationSubmission(&$formvars)
     {
-        $formvars['name'] = $this->Sanitize($_POST['name']);
-        $formvars['email'] = $this->Sanitize($_POST['email']);
         $formvars['username'] = $this->Sanitize($_POST['username']);
+        $formvars['first_name'] = $this->Sanitize($_POST['first_name']);
+        $formvars['last_name'] = $this->Sanitize($_POST['last_name']);
+        $formvars['input_email'] = $this->Sanitize($_POST['input_email']);
         $formvars['password'] = $this->Sanitize($_POST['password']);
+        $formvars['password_reconfirm'] = $this->Sanitize($_POST['password_reconfirm']);
     }
 
     function SaveToDatabase(&$formvars)
@@ -551,7 +553,7 @@ class Site
         {
             return false;
         }
-        if(!$this->IsFieldUnique($formvars,'email'))
+        if(!$this->IsFieldUnique($formvars,'input_email'))
         {
             $this->HandleError("This email is already registered");
             return false;
@@ -559,7 +561,7 @@ class Site
 
         if(!$this->IsFieldUnique($formvars,'username'))
         {
-            $this->HandleError("This UserName is already used. Please try another username");
+            $this->HandleError("This Username is already in use. Please try another username.");
             return false;
         }
         if(!$this->InsertIntoDB($formvars))
@@ -574,8 +576,8 @@ class Site
     {
         $field_val = $this->SanitizeForSQL($formvars[$fieldname]);
         $qry = "select username from $this->tablename where $fieldname='".$field_val."'";
-        $result = mysql_query($qry,$this->connection);
-        if($result && mysql_num_rows($result) > 0)
+        $result = ($this->connection->query($qry));
+        if($result && mysqli_num_rows($result) > 0)
         {
             return false;
         }
@@ -585,21 +587,25 @@ class Site
     function DBLogin()
     {
 
-        $this->connection = mysql_connect($this->db_host,$this->username,$this->pwd);
+        //$this->connection = mysql_connect($this->db_host,$this->username,$this->pwd);
+        /*
+        // database credentials
+        $servername = "localhost";
+        $username = "root";
+        $password = "mysql";
+        $dbname = "haze_db";
+        */
+        // Create connection
+        $this->connection = new mysqli($this->db_host,$this->username,$this->pwd,$this->database);
 
         if(!$this->connection)
         {
             $this->HandleDBError("Database Login failed! Please make sure that the DB login credentials provided are correct");
             return false;
         }
-        if(!mysql_select_db($this->database, $this->connection))
+        if(!mysqli_select_db($this->connection, $this->database))
         {
             $this->HandleDBError('Failed to select database: '.$this->database.' Please make sure that the database name provided is correct');
-            return false;
-        }
-        if(!mysql_query("SET NAMES 'UTF8'",$this->connection))
-        {
-            $this->HandleDBError('Error setting utf8 encoding');
             return false;
         }
         return true;
@@ -607,8 +613,8 @@ class Site
 
     function Ensuretable()
     {
-        $result = mysql_query("SHOW COLUMNS FROM $this->tablename");
-        if(!$result || mysql_num_rows($result) <= 0)
+        $result = mysqli_query($this->connection, "SHOW COLUMNS FROM $this->tablename");
+        if(!$result || mysqli_num_rows($result) <= 0)
         {
             return $this->CreateTable();
         }
@@ -618,7 +624,7 @@ class Site
     function CreateTable()
     {
         // sql to create User table if it doesn't already exist
-        $sql = "CREATE TABLE IF NOT EXISTS User (
+        $qry = "CREATE TABLE IF NOT EXISTS User (
         username VARCHAR(30) NOT NULL UNIQUE,
         list_id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
         password VARCHAR(20) NOT NULL,
@@ -627,7 +633,8 @@ class Site
         email VARCHAR(50)
         )";
 
-        if(!mysql_query($qry,$this->connection))
+        //if(!mysqli_query($qry,$this->connection))
+        if (!($this->connection->query($qry) === TRUE))
         {
             $this->HandleDBError("Error creating the table \nquery was\n $qry");
             return false;
@@ -638,27 +645,27 @@ class Site
 //TODO: Fix this to work for our database
     function InsertIntoDB(&$formvars)
     {
-
-        $confirmcode = $this->MakeConfirmationMd5($formvars['email']);
+/*
+        $confirmcode = $this->MakeConfirmationMd5($formvars['input_email']);
 
         $formvars['confirmcode'] = $confirmcode;
-
-        $insert_query = 'insert into '.$this->tablename.'(
-                name,
-                email,
+*/
+        $insert_query = 'INSERT INTO '.$this->tablename.'(
                 username,
                 password,
-                confirmcode
+                firstname,
+                lastname,
+                email
                 )
                 values
                 (
-                "' . $this->SanitizeForSQL($formvars['name']) . '",
-                "' . $this->SanitizeForSQL($formvars['email']) . '",
                 "' . $this->SanitizeForSQL($formvars['username']) . '",
-                "' . md5($formvars['password']) . '",
-                "' . $confirmcode . '"
+                "' . $this->SanitizeForSQL($formvars['password']) . '",
+                "' . $this->SanitizeForSQL($formvars['first_name']) . '",
+                "' . $this->SanitizeForSQL($formvars['last_name']) . '",
+                "' . $this->SanitizeForSQL($formvars['input_email']) . '"
                 )';
-        if(!mysql_query( $insert_query ,$this->connection))
+        if(!($this->connection->query($insert_query) === TRUE))
         {
             $this->HandleDBError("Error inserting data to the table\nquery:$insert_query");
             return false;
@@ -668,9 +675,9 @@ class Site
 
     function SanitizeForSQL($str)
     {
-        if( function_exists( "mysql_real_escape_string" ) )
+        if( function_exists( "mysqli_real_escape_string" ) )
         {
-              $ret_str = mysql_real_escape_string( $str );
+              $ret_str = mysqli_real_escape_string($this->connection, $str );
         }
         else
         {
