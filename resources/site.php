@@ -332,7 +332,7 @@ class Site
         $pwdmd5 = md5($password);
         $qry = "Select name, email from $this->tablename where username='$username' and password='$pwdmd5' and confirmcode='y'";
 
-        $result = mysqli_query($qry,$this->connection);
+        $result = mysqli_query($this->connection, $qry);
 
         if(!$result || mysqli_num_rows($result) <= 0)
         {
