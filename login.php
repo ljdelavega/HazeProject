@@ -6,6 +6,13 @@ $page_keywords = array("game collection", "video game tracker", "track games", "
 /* Note: Always load the config file for each page */
 require_once("resources/config.php");
 require_once(TEMPLATES_PATH . "/header.php");
+if(isset($_POST['submitted']))
+{
+   if($site->Login())
+   {
+        $site->RedirectToURL("main.php");
+   }
+}
 ?>
 
 <!-- Insert content here -->
@@ -17,18 +24,20 @@ require_once(TEMPLATES_PATH . "/header.php");
 		<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
 			<h1>Login to your Haze account</h1>
 			<p>Login to Haze, and make keeping track of your video game collection easy.</p>
-			<form>
+			<form id = 'login' action = '<?php echo $site->GetSelfScript(); ?>' method = 'post' accept-charset='UTF-8'>
+				<input type = 'hidden' name = 'submitted' id = 'submitted' value = '1'/>
 				<div class="form-group">
 					<label for="username">Username *</label>
-					<input type="text" id="username" class="form-control" placeholder="Enter your username here." required autofocus autocomplete>
+					<input type="text" id="username" name = "username" value = '<?php echo $site->SafeDisplay('username') ?>' maxlength = "50" class="form-control" placeholder="Enter your username here." required autofocus autocomplete>
 				</div>
 
 				<div class="form-group">
 					<label for="password">Password *</label>
-					<input type="text" id="password" class="form-control" placeholder="Enter your password here." required autofocus autocomplete>
+					<input type="password" id="password" name = "password" maxlength = "50" class="form-control" placeholder="Enter your password here." required autofocus autocomplete>
 				</div>
 
 				<input type="submit" name="login" class="btn btn-primary" value="Log me in!">
+				<div><span class='error'><?php echo $site->GetErrorMessage(); ?></span></div>
 			</form>
 		</div>
 	</div>
