@@ -36,7 +36,8 @@ if(isset($_POST['submitted']))
 					<input type="password" id="password" name = "password" maxlength = "50" class="form-control" placeholder="Enter your password here." required autofocus autocomplete>
 				</div>
 
-				<input type="submit" name="login" class="btn btn-primary" value="Log me in!">
+				<input type="submit" name="login" class="btn btn-primary" value="Log In">
+				<div class='short_explanation'><a href='resetpwd.php'>Forgot Password?</a></div>
 				<div><span class='error'><?php echo $site->GetErrorMessage(); ?></span></div>
 			</form>
 		</div>
