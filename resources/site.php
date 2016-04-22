@@ -329,22 +329,29 @@ class Site
             return false;
         }
         $username = $this->SanitizeForSQL($username);
-        $pwdmd5 = md5($password);
-        $qry = "Select name, email from $this->tablename where username='$username' and password='$pwdmd5' and confirmcode='y'";
+        $pwd = $this->SanitizeForSQL($password);
+        $qry = "SELECT username, email, list_id FROM $this->tablename WHERE username='$username' AND password='$pwd'";
 
         $result = mysqli_query($this->connection, $qry);
 
-        if(!$result || mysqli_num_rows($result) <= 0)
+        if(!$result)
         {
-            $this->HandleError("Error logging in. The username or password does not match");
+          $this->HandleError("Error logging in. Query was: " . $qry);
+          return false;
+        }
+
+        if(mysqli_num_rows($result) <= 0)
+        {
+            $this->HandleError("Error logging in. The username or password does not match.");
             return false;
         }
 
         $row = mysqli_fetch_assoc($result);
 
-
-        $_SESSION['name_of_user']  = $row['name'];
-        $_SESSION['email_of_user'] = $row['email'];
+        // Save user info into session on successful login.
+        $_SESSION['username']  = $row['username'];
+        $_SESSION['email'] = $row['email'];
+        $_SESSION['list_id'] = $row['list_id'];
 
         return true;
     }
