@@ -143,8 +143,7 @@ class Site
 
     function LogOut()
     {
-        session_start();
-
+      
         $sessionvar = $this->GetLoginSessionVar();
 
         $_SESSION[$sessionvar]=NULL;

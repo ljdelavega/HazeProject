@@ -1,3 +1,10 @@
+<?php
+/* Note: Always load the config file for each page */
+require_once("resources/config.php");
+
+$logged_in = $site->CheckLogin();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 	<head>
@@ -36,17 +43,26 @@
 			<!-- Collection of nav links and other content for toggling -->
 			<div id="navbarCollapse" class="collapse navbar-collapse">
 				<ul class="nav navbar-nav">
-					<li class="active"><a href="index.php">Home</a></li>
-					<li><a href="#">Your Game List</a></li>
+					<li class="active"><a href="main.php">Your Game List</a></li>
+					<li><a href="#">Analytics</a></li>
 					<li><a href="#">Reviews</a></li>
 				</ul>
 				<ul class="nav navbar-nav navbar-right">
-					<li><a href="login.php">Log in</a></li>
-					<li>
-						<p class="navbar-btn">
-						<a class="btn btn-success" href="signup.php">Sign up</a>
-						</p>
-					</li>
+					<?php if ($logged_in) { ?>
+						<li>
+							<p class="navbar-btn">
+	            <a class="btn btn-primary" href="logout.php" title="">Logout</a>
+							</p>
+						</li>
+	        <?php } else { ?>
+						<li><a href="login.php">Log in</a></li>
+						<li>
+							<p class="navbar-btn">
+							<a class="btn btn-success" href="signup.php">Sign up</a>
+							</p>
+						</li>
+	        <?php } ?>
+
 				</ul>
 			</div>
 		</nav>
