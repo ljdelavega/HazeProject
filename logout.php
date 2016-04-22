@@ -5,9 +5,9 @@ $page_keywords = array("game collection", "video game tracker", "track games", "
 
 /* Note: Always load the config file for each page */
 require_once("resources/config.php");
+require_once(TEMPLATES_PATH . "/header.php");
 // log the current user out.
 $site->LogOut();
-require_once(TEMPLATES_PATH . "/header.php");
 ?>
 
 <div class="container-fluid">
