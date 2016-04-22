@@ -12,7 +12,7 @@ require_once(TEMPLATES_PATH . "/header.php");
 <div class = "container-fluid">
 	<div class="row">
     <div class="col-xs-6">
-      <h1>Add new review</h1>
+      <h1>Add new review for: {{game_name}}</h1>
       <form>
 				<div class="form-group">
 					<label for="rating">Rating *</label>
