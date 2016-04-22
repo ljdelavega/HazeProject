@@ -5,7 +5,6 @@ $page_keywords = array("game collection", "video game tracker", "track games", "
 
 /* Note: Always load the config file for each page */
 require_once("resources/config.php");
-require_once(TEMPLATES_PATH . "/header.php");
 if(isset($_POST['submitted']))
 {
    if($site->Login())
@@ -13,6 +12,8 @@ if(isset($_POST['submitted']))
         $site->RedirectToURL("main.php");
    }
 }
+
+require_once(TEMPLATES_PATH . "/header.php");
 ?>
 <!-- Insert content here -->
 <div class = "container-fluid">
