@@ -14,7 +14,6 @@ if(isset($_POST['submitted']))
    }
 }
 ?>
-
 <!-- Insert content here -->
 <div class = "container-fluid">
 	<div class="row">

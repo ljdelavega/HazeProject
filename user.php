@@ -6,17 +6,30 @@ $page_keywords = array("game collection", "video game tracker", "track games", "
 /* Note: Always load the config file for each page */
 require_once("resources/config.php");
 require_once(TEMPLATES_PATH . "/header.php");
+
+// ensure the user is logged in
+if(!$site->CheckLogin())
+{
+    $site->RedirectToURL("login.php");
+    exit;
+}
+
+//get variables from session
+$username = $_SESSION['username'];
+$firstname = $_SESSION['firstname'];
+$lastname = $_SESSION['lastname'];
+$email = $_SESSION['email'];
 ?>
 
 <!-- Insert content here -->
 <div class = "container-fluid">
 	<div class="row">
     <div class="col-xs-12">
-      <h1>{{username}}</h1>
+      <h1>Profile for <?php echo $username;?></h1>
       <h2>Information</h2>
-      <p><strong>First Name: </strong>{{first_name}}</p>
-      <p><strong>Last Name: </strong>{{last_name}}</p>
-      <p><strong>Email: </strong>{{email_address}}</p>
+      <p><strong>First Name: </strong><?php echo $firstname;?></p>
+      <p><strong>Last Name: </strong><?php echo $lastname;?></p>
+      <p><strong>Email: </strong><?php echo $email;?></p>
 
       <a class="btn btn-success" href="useredit.php" role="button">Edit User Details</a>
     </div>

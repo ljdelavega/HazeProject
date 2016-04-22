@@ -143,7 +143,7 @@ class Site
 
     function LogOut()
     {
-      
+
         $sessionvar = $this->GetLoginSessionVar();
 
         $_SESSION[$sessionvar]=NULL;
@@ -353,6 +353,7 @@ class Site
         $_SESSION['list_id'] = $row['list_id'];
         $_SESSION['firstname'] = $row['firstname'];
         $_SESSION['lastname'] = $row['lastname'];
+        $_SESSION['password'] = $row['password'];
 
         return true;
     }
