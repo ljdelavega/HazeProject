@@ -29,16 +29,16 @@ require_once(TEMPLATES_PATH . "/header.php");
 				<div class="form-group">
 					<label for="completion_state">Completion state *</label>
           <div class="radio">
-            <label><input type="radio" name="optradio">Unplayed</label>
+            <label><input type="radio" id="completion_state" name="optradio">Unplayed</label>
           </div>
           <div class="radio">
-            <label><input type="radio" name="optradio">Unfinished</label>
+            <label><input type="radio" id="completion_state" name="optradio">Unfinished</label>
           </div>
           <div class="radio">
-            <label><input type="radio" name="optradio">Completed</label>
+            <label><input type="radio" id="completion_state" name="optradio">Completed</label>
           </div>
           <div class="radio">
-            <label><input type="radio" name="optradio">Other</label>
+            <label><input type="radio" id="completion_state" name="optradio">Other</label>
           </div>
 				</div>
 
