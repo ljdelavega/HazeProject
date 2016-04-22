@@ -6,51 +6,59 @@ $page_keywords = array("game collection", "video game tracker", "track games", "
 /* Note: Always load the config file for each page */
 require_once("resources/config.php");
 require_once(TEMPLATES_PATH . "/header.php");
+
+// ensure the user is logged in
+if(!$site->CheckLogin())
+{
+    $site->RedirectToURL("login.php");
+    exit;
+}
+
+//get variables from session
+$username = $_SESSION['username'];
+$firstname = $_SESSION['firstname'];
+$lastname = $_SESSION['lastname'];
+$list_id = $_SESSION['list_id'];
 ?>
 
 <!-- Insert content here -->
 <div class = "container-fluid">
 	<div class="row">
 		<div class="col-xs-12 bg-primary">
-			<h1>Welcome {{username}}!</h1>
-      <p>{{first name}}{{last name}}</p>
+			<h1>Welcome <?php echo $username;?>!</h1>
+      <p><?php echo $firstname;?> <?php echo $lastname;?></p>
 		</div>
 
     <div class="col-xs-12">
       <h1>Your Game List</h1>
       <table class="table table-striped">
-        <tr>
+				<tr>
           <th>Game</th>
-          <th>Actions</th>
+					<th>Price</th>
+          <th>Genre</th>
+					<th>Actions</th>
         </tr>
-        <tr>
-          <td>League of Legends</td>
-          <td>
-            <button class="btn btn-primary">Edit</button>
-            <button class="btn">Review</button>
-          </td>
-        </tr>
-        <tr>
-          <td>Dead or Alive: Xtreme Beach Volleyball</td>
-          <td>
-            <button class="btn btn-primary">Edit</button>
-            <button class="btn">Review</button>
-          </td>
-        </tr>
-        <tr>
-          <td>XCOM 2</td>
-          <td>
-            <button class="btn btn-primary">Edit</button>
-            <button class="btn">Review</button>
-          </td>
-        </tr>
-        <tr>
-          <td>Daikatana</td>
-          <td>
-            <button class="btn btn-primary">Edit</button>
-            <button class="btn">Review</button>
-          </td>
-        </tr>
+				<?php
+					// populate the game list with user's list of games.
+					$gamelist = $site->GetGamesFromList($list_id);
+					if (!$gamelist)
+					{
+						echo "You currently have no games in your list.";
+					}
+					else
+					{
+	           while ($row = mysqli_fetch_array($gamelist)) {?>
+	               <tr>
+	               <td><?php echo $row['name'];?></td>
+	               <td><?php echo $row['price'];?></td>
+	               <td><?php echo $row['genre'];?></td>
+	               <td>
+									 <button class="btn btn-primary">Edit</button>
+		             	 <button class="btn">Review</button>
+							 	 </td>
+	               </tr>
+	  	<?php }
+					} ?>
       </table>
     </div>
 	</div>

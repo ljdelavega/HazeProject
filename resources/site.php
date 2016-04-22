@@ -330,7 +330,7 @@ class Site
         }
         $username = $this->SanitizeForSQL($username);
         $pwd = $this->SanitizeForSQL($password);
-        $qry = "SELECT username, email, list_id FROM $this->tablename WHERE username='$username' AND password='$pwd'";
+        $qry = "SELECT * FROM $this->tablename WHERE username='$username' AND password='$pwd'";
 
         $result = mysqli_query($this->connection, $qry);
 
@@ -352,6 +352,8 @@ class Site
         $_SESSION['username']  = $row['username'];
         $_SESSION['email'] = $row['email'];
         $_SESSION['list_id'] = $row['list_id'];
+        $_SESSION['firstname'] = $row['firstname'];
+        $_SESSION['lastname'] = $row['lastname'];
 
         return true;
     }
@@ -593,15 +595,6 @@ class Site
 
     function DBLogin()
     {
-
-        //$this->connection = mysql_connect($this->db_host,$this->username,$this->pwd);
-        /*
-        // database credentials
-        $servername = "localhost";
-        $username = "root";
-        $password = "mysql";
-        $dbname = "haze_db";
-        */
         // Create connection
         $this->connection = new mysqli($this->db_host,$this->username,$this->pwd,$this->database);
 
@@ -640,7 +633,6 @@ class Site
         email VARCHAR(50)
         )";
 
-        //if(!mysqli_query($qry,$this->connection))
         if (!($this->connection->query($qry) === TRUE))
         {
             $this->HandleDBError("Error creating the table \nquery was\n $qry");
@@ -649,14 +641,8 @@ class Site
         return true;
     }
 
-//TODO: Fix this to work for our database
     function InsertIntoDB(&$formvars)
     {
-/*
-        $confirmcode = $this->MakeConfirmationMd5($formvars['input_email']);
-
-        $formvars['confirmcode'] = $confirmcode;
-*/
         $insert_query = 'INSERT INTO '.$this->tablename.'(
                 username,
                 password,
@@ -724,6 +710,36 @@ class Site
             $str = stripslashes($str);
         }
         return $str;
+    }
+
+    function GetGamesFromList($list)
+    {
+      if(!$this->DBLogin())
+      {
+          $this->HandleError("Database login failed!");
+          return false;
+      }
+
+      // get rows from the Game relation and join with Contains to get the user's games.
+      $qry = "SELECT * FROM Game
+              LEFT JOIN Contains ON Game.game_id = Contains.game_id
+              WHERE list_id='$list'
+      ";
+      $gamelist = mysqli_query($this->connection, $qry);
+      if(!$gamelist)
+      {
+        $this->HandleError("Error getting Game relation. Query was: " . $qry);
+        return false;
+      }
+
+      if(mysqli_num_rows($gamelist) <= 0)
+      {
+          $this->HandleError("There are no games in the list. Please add some games.");
+          return false;
+      }
+
+      return $gamelist;
+
     }
 }
 ?>
