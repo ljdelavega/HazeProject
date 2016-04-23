@@ -16,7 +16,14 @@ if(isset($_POST['submitted']))
 			$site->RedirectToURL("main.php");
 	}
 }
-
+if(isset($_POST['deleted']))
+{
+	if ($site->DeleteGame())
+	{
+		echo "Game successfully deleted! \r\n";
+			$site->RedirectToURL("main.php");
+	}
+}
 
 ?>
 
@@ -60,6 +67,21 @@ if(isset($_POST['submitted']))
 			</form>
 
       <br />
+	  
+	  <div class="panel panel-danger">
+		<div class="panel-heading">Delete Game</div>
+		<div class="panel-body">
+		<p>
+			Enter the name of the title you wish to Delete.
+		</p>
+		<form id='update' action='<?php echo $site->GetSelfScript(); ?>' method='post' accept-charset='UTF-8'>
+				<input type='hidden' name='deleted' id='deleted' value='1'/>
+				<div class="form-group">
+					<label for="game_name">Game Name *</label>
+					<input type="text" id="game_name" name="game_name" class="form-control" placeholder="e.g. Super Mario Bros." required autofocus autocomplete>
+				</div>
+				<input type="submit" name="Delete" class="btn btn-primary" value="Delete">
+			</form>
     </div>
 	</div>
 </div>
