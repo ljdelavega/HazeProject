@@ -769,9 +769,9 @@ function UpdateGame()
       }
 
       return true;
-    }	
-	
-	
+    }
+
+
     function ValidateGameSubmission()
     {
         //This is a hidden input field. Humans won't fill this field.
@@ -1123,6 +1123,62 @@ function UpdateGame()
 
       return $gamelist;
 
+    }
+
+    function GetGameByID($game_id)
+    {
+      if(!$this->DBLogin())
+      {
+          $this->HandleError("Database login failed!");
+          return false;
+      }
+
+      // get rows from the Game relation and join with Contains to get the user's games.
+      $qry = "SELECT * FROM Game
+              WHERE game_id='$game_id'
+      ";
+      $game = mysqli_query($this->connection, $qry);
+      if(!$game)
+      {
+        $this->HandleError("Error getting Game relation. Query was: " . $qry);
+        return false;
+      }
+
+      if(mysqli_num_rows($game) <= 0)
+      {
+          $this->HandleError("There is no game with this ID: " . $game_id );
+          return false;
+      }
+
+      return $game;
+    }
+
+    function GetCompletionStateByID($game_id)
+    {
+      if(!$this->DBLogin())
+      {
+          $this->HandleError("Database login failed!");
+          return false;
+      }
+
+      // get rows from the Game relation and join with Contains to get the user's games.
+      $qry = "SELECT * FROM CompletionState
+              WHERE game_id='$game_id'
+      ";
+      $completion_state = mysqli_query($this->connection, $qry);
+      if(!$completion_state)
+      {
+        $this->HandleError("Error getting ComplationState relation. Query was: " . $qry);
+        return false;
+      }
+
+      if(mysqli_num_rows($completion_state) <= 0)
+      {
+          $this->HandleError("There is no Completion State with this ID: " . $game_id );
+          return false;
+      }
+
+      return $completion_state;
     }
 
     function GetAllReviews()
