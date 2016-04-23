@@ -358,32 +358,87 @@ class Site
         return true;
     }
 
-    function UpdateDBRecForConfirmation(&$user_rec)
+    function UpdateUser()
+    {
+        if(!isset($_POST['submitted']))
+        {
+           return false;
+        }
+
+        $formvars = array();
+
+        $this->CollectUpdateSubmission($formvars);
+
+        if(!$this->VerifyUpdate($formvars))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    function CollectUpdateSubmission(&$formvars)
+    {
+        $formvars['first_name'] = $this->Sanitize($_POST['first_name']);
+        $formvars['last_name'] = $this->Sanitize($_POST['last_name']);
+        $formvars['input_email'] = $this->Sanitize($_POST['input_email']);
+        $formvars['password'] = $this->Sanitize($_POST['password']);
+        $formvars['password_reconfirm'] = $this->Sanitize($_POST['password_reconfirm']);
+    }
+
+    function VerifyUpdate(&$formvars)
     {
         if(!$this->DBLogin())
         {
             $this->HandleError("Database login failed!");
             return false;
         }
-        $confirmcode = $this->SanitizeForSQL($_GET['code']);
-
-        $result = mysqli_query("Select name, email from $this->tablename where confirmcode='$confirmcode'",$this->connection);
-        if(!$result || mysqli_num_rows($result) <= 0)
+        if(!$this->Ensuretable())
         {
-            $this->HandleError("Wrong confirm code.");
             return false;
         }
-        $row = mysqli_fetch_assoc($result);
-        $user_rec['name'] = $row['name'];
-        $user_rec['email']= $row['email'];
-
-        $qry = "Update $this->tablename Set confirmcode='y' Where  confirmcode='$confirmcode'";
-
-        if(!mysqli_query( $qry ,$this->connection))
+        if(!$this->IsFieldUnique($formvars,'input_email'))
         {
-            $this->HandleDBError("Error inserting data to the table\nquery:$qry");
+            $this->HandleError("This email is already registered");
             return false;
         }
+
+        if(!$this->UpdateDB($formvars))
+        {
+            $this->HandleError("Updating the Database failed!");
+            return false;
+        }
+        return true;
+    }
+
+    function UpdateDB(&$formvars)
+    {
+        if(!$this->DBLogin())
+        {
+            $this->HandleError("Database login failed!");
+            return false;
+        }
+        // Get variables from form
+        $password = $this->SanitizeForSQL($formvars["password"]);
+        $firstname = $this->SanitizeForSQL($formvars["first_name"]);
+        $lastname = $this->SanitizeForSQL($formvars["last_name"]);
+        $email = $this->SanitizeForSQL($formvars["input_email"]);
+        $list_id = $_SESSION['list_id'];
+
+        $update_query = "UPDATE User SET password='$password', firstname='$firstname', lastname='$lastname', email='$email' WHERE list_id='$list_id'";
+
+        if(!mysqli_query($this->connection, $update_query))
+        {
+            $this->HandleDBError("Error updating data in the User table\nquery:$update_query");
+            return false;
+        }
+        //update session vars after successful update.
+        $_SESSION['email'] = $email;
+        $_SESSION['list_id'] = $list_id;
+        $_SESSION['firstname'] = $firstname;
+        $_SESSION['lastname'] = $lastname;
+        $_SESSION['password'] = $password;
+
         return true;
     }
 
@@ -506,7 +561,6 @@ class Site
         return true;
     }
 
-//TODO: Fix this for our registration form
     function ValidateRegistrationSubmission()
     {
         //This is a hidden input field. Humans won't fill this field.
@@ -540,7 +594,6 @@ class Site
         return true;
     }
 
-//TODO: Fix this for our registration form
     function CollectRegistrationSubmission(&$formvars)
     {
         $formvars['username'] = $this->Sanitize($_POST['username']);
