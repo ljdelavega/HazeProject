@@ -56,7 +56,7 @@ $list_id = $_SESSION['list_id'];
 	               <td><?php echo $row['genre'];?></td>
 	               <td>
 									 <a class="btn btn-primary" href="gameedit.php<?php $_SESSION['game_id'] = $row['game_id'];?>">Edit</a>
-		             	 <button class="btn">Review</button>
+		             	 <a class="btn" href="reviewadd.php<?php $_SESSION['game_id'] = $row['game_id'];?>">Review</a>
 							 	 </td>
 	               </tr>
 	  	<?php }

@@ -114,6 +114,31 @@ class Site
         return true;
     }
 
+    function RegisterReview()
+    {
+        if(!isset($_POST['submitted']))
+        {
+           return false;
+        }
+
+        $formvars = array();
+
+        if(!$this->ValidateReviewSubmission())
+        {
+            return false;
+        }
+
+        $this->CollectReviewSubmission($formvars);
+
+        if(!$this->SaveReviewToDatabase($formvars))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+
     function Login()
     {
         if(empty($_POST['username']))
@@ -690,7 +715,7 @@ function UpdateGame()
 
         $formvars = array();
 
-        $this->CollectGameSubmission($formvars);
+        $this->CollectGameUpdateSubmission($formvars);
 
         if(!$this->VerifyGameUpdate($formvars))
         {
@@ -702,9 +727,11 @@ function UpdateGame()
 
     function CollectGameUpdateSubmission(&$formvars)
     {
-        $formvars['game_name'] = $this->Sanitize($_POST['game_name']);
-        $formvars['genre'] = $this->Sanitize($_POST['genre']);
-        $formvars['price'] = $this->Sanitize($_POST['price']);
+      $formvars['game_name'] = $this->Sanitize($_POST['game_name']);
+      $formvars['genre'] = $this->Sanitize($_POST['genre']);
+      $formvars['price'] = $this->Sanitize($_POST['price']);
+      $formvars['hours'] = $this->Sanitize($_POST['hours']);
+      $formvars['completion_state'] = $this->Sanitize($_POST['completion_state']);
     }
 
     function VerifyGameUpdate(&$formvars)
@@ -734,15 +761,29 @@ function UpdateGame()
             $this->HandleError("Database login failed!");
             return false;
         }
-        // Get variables from form
+        // Get variables from form for Game table update
+        $game_id = $_SESSION['game_id'];
         $gamename = $this->SanitizeForSQL($formvars["game_name"]);
         $genre = $this->SanitizeForSQL($formvars["genre"]);
         $price = $this->SanitizeForSQL($formvars["price"]);
-        $update_query = "UPDATE Game SET game_name='$gamename', genre='$genre', price='$price'";
+        $game_query = "UPDATE Game SET game_name='$gamename', genre='$genre', price='$price' WHERE game_id = '$game_id'";
 
-        if(!mysqli_query($this->connection, $update_query))
+        if(!mysqli_query($this->connection, $game_query))
         {
-            $this->HandleDBError("Error updating data in the Game table\nquery:$update_query");
+            $this->HandleDBError("Error updating data in the Game table\nquery:$game_query");
+            return false;
+        }
+
+        // Now update the completion state
+        // Get variables from form for CompletionState table update
+        $completion_state = $this->SanitizeForSQL($formvars["completion_state"]);
+        $hours = $this->SanitizeForSQL($formvars["hours"]);
+
+        $completion_state_query = "UPDATE CompletionState SET state='$completion_state', hours='$hours' WHERE game_id = '$game_id'";
+
+        if(!mysqli_query($this->connection, $completion_state_query))
+        {
+            $this->HandleDBError("Error updating data in the CompletionState table\nquery:$completion_state_query");
             return false;
         }
         return true;
@@ -836,6 +877,166 @@ function UpdateGame()
         return true;
     }
 
+    function UpdateReview()
+        {
+            if(!isset($_POST['submitted']))
+            {
+               return false;
+            }
+
+            $formvars = array();
+
+            $this->CollectReviewSubmission($formvars);
+
+            if(!$this->VerifyReviewUpdate($formvars))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        function CollectReviewUpdateSubmission(&$formvars)
+        {
+            $formvars['username'] = $this->Sanitize($_POST['username']);
+            $formvars['game_id'] = $this->Sanitize($_POST['game_id']);
+            $formvars['rating'] = $this->Sanitize($_POST['rating']);
+            $formvars['text_review'] = $this->Sanitize($_POST['text_review']);
+        }
+
+        function VerifyReviewUpdate(&$formvars)
+        {
+            if(!$this->DBLogin())
+            {
+                $this->HandleError("Database login failed!");
+                return false;
+            }
+            if(!$this->EnsureReviewtable())
+            {
+                return false;
+            }
+
+            if(!$this->UpdateReviewDB($formvars))
+            {
+                $this->HandleError("Updating the Database failed!");
+                return false;
+            }
+            return true;
+        }
+
+        function UpdateReviewDB(&$formvars)
+        {
+            if(!$this->DBLogin())
+            {
+                $this->HandleError("Database login failed!");
+                return false;
+            }
+            // Get variables from form
+            $username = $this->SanitizeForSQL($formvars["username"]);
+            $game_id = $this->SanitizeForSQL($formvars["game_id"]);
+            $rating = $this->SanitizeForSQL($formvars["rating"]);
+            $text_review = $this->SanitizeForSQL($formvars["text_review"]);
+            $update_query = "UPDATE Review SET rating='$rating', text_review='$text_review'";
+
+            if(!mysqli_query($this->connection, $update_query))
+            {
+                $this->HandleDBError("Error updating data in the Review table\nquery:$update_query");
+                return false;
+            }
+            return true;
+        }
+
+        function DeleteReview()
+        {
+          if(!$this->DBLogin())
+          {
+              $this->HandleError("Database login failed!");
+              return false;
+          }
+        $formvars = array();
+        $formvars['username'] = $this->Sanitize($_POST['username']);
+        $formvars['game_id'] = $this->Sanitize($_POST['game_name']);
+        $gamename = $this->SanitizeForSQL($formvars["game_id"]);
+          // sql to delete a Delete record
+          $delete_query = "DELETE FROM Review WHERE username = '$username' and game_id = '$game_id'";
+
+          if (mysqli_query($this->connection, $delete_query)) {
+              echo "Review by: " . $username . " deleted successfully";
+          } else {
+              $this->HandleDBError("Error deleting review from the Review table\nquery:$delete_query");
+              return false;
+          }
+
+          return true;
+        }
+
+
+        function ValidateReviewSubmission()
+        {
+            //This is a hidden input field. Humans won't fill this field.
+            if(!empty($_POST[$this->GetSpamTrapInputName()]) )
+            {
+                //The proper error is not given intentionally
+                $this->HandleError("Automated submission prevention: case 2 failed");
+                return false;
+            }
+
+            $validator = new FormValidator();
+            $validator->addValidation("username","req","Please enter the username!");
+            $validator->addValidation("game_id","req","Please enter the game id!");
+            $validator->addValidation("rating","req","Please enter the rating!");
+            $validator->addValidation("text_review","req","Please enter the review text!");
+
+            if(!$validator->ValidateForm())
+            {
+                $error='';
+                $error_hash = $validator->GetErrors();
+                foreach($error_hash as $inpname => $inp_err)
+                {
+                    $error .= $inpname.':'.$inp_err."\n";
+                }
+                $this->HandleError($error);
+                return false;
+            }
+            return true;
+        }
+
+        function CollectReviewSubmission(&$formvars)
+        {
+            $formvars['username'] = $this->Sanitize($_POST['username']);
+            $formvars['game_id'] = $this->Sanitize($_POST['game_id']);
+            $formvars['rating'] = $this->Sanitize($_POST['rating']);
+            $formvars['text_review'] = $this->Sanitize($_POST['text_review']);
+        }
+
+        function SaveReviewToDatabase(&$formvars)
+        {
+            if(!$this->DBLogin())
+            {
+                $this->HandleError("Database login failed!");
+                return false;
+            }
+            if(!$this->EnsureReviewtable())
+            {
+                return false;
+            }
+
+            if(!$this->IsFieldUnique($formvars,'username') && !$this->IsFieldUnique($formvars,'game_id'))
+            {
+                $this->HandleError("A review for this game by this user already exists.");
+                return false;
+            }
+            if(!$this->InsertReviewIntoDB($formvars))
+            {
+                $this->HandleError("Inserting to Database failed!");
+                return false;
+            }
+            return true;
+        }
+
+
+
+
     function IsFieldUnique($formvars,$fieldname)
     {
         $field_val = $this->SanitizeForSQL($formvars[$fieldname]);
@@ -850,7 +1051,15 @@ function UpdateGame()
 
     function DBLogin()
     {
-        // Create connection
+        // Connect to MySQL
+        $conn = new mysqli($this->db_host,$this->username,$this->pwd);
+        // try to connect to haze_db, if you can't, then create it.
+        if (!mysqli_select_db($conn, $this->database)) {
+          // try to create the db if connection fails on first attempt.
+          $this->CreateDB();
+        }
+
+        // Create connection to haze database
         $this->connection = new mysqli($this->db_host,$this->username,$this->pwd,$this->database);
 
         if(!$this->connection)
@@ -864,6 +1073,37 @@ function UpdateGame()
             return false;
         }
         return true;
+    }
+
+    // create the database if not already created
+    function CreateDB()
+    {
+      // Connect to MySQL
+      $conn = new mysqli($this->db_host,$this->username,$this->pwd);
+      if ($conn->connect_error) {
+          die('Could not connect: ' . $conn->connect_error);
+      }
+
+      $sql = 'CREATE DATABASE IF NOT EXISTS haze_db';
+      // create the haze_db only if it doesn't already exist.
+      if ($conn->query($sql) === TRUE) {
+          echo "Database haze_db created successfully\n";
+      } else {
+          echo 'Error creating database: ' . $conn->error . "\n";
+      }
+
+      // Now create the tables.
+      // Create connection to haze database
+      $this->connection = new mysqli($this->db_host,$this->username,$this->pwd,$this->database);
+
+      // user table
+      $this->CreateTable();
+      // Game, Contains, and CompletionState tables
+      $this->CreateGameTable();
+      // reviews table
+      $this->CreateReviewsTable();
+
+      $conn->close();
     }
 
     function Ensuretable()
@@ -886,6 +1126,7 @@ function UpdateGame()
         return true;
     }
 
+    // this function creates the user table
     function CreateTable()
     {
         // sql to create User table if it doesn't already exist
@@ -931,8 +1172,8 @@ function UpdateGame()
       date_completed DATETIME,
       state VARCHAR(30),
       PRIMARY KEY (list_id, game_id),
-      FOREIGN KEY (list_id) REFERENCES User(list_id),
-      FOREIGN KEY (game_id) REFERENCES Game(game_id)
+      FOREIGN KEY (list_id) REFERENCES User(list_id) ON DELETE CASCADE ON UPDATE CASCADE,
+      FOREIGN KEY (game_id) REFERENCES Game(game_id) ON DELETE CASCADE ON UPDATE CASCADE
       )";
 
       if ($this->connection->query($create_completionstate) === TRUE) {
@@ -948,8 +1189,8 @@ function UpdateGame()
       list_id INT(6) UNSIGNED,
       game_id INT(6) UNSIGNED,
       PRIMARY KEY (list_id, game_id),
-      FOREIGN KEY (list_id) REFERENCES User(list_id),
-      FOREIGN KEY (game_id) REFERENCES Game(game_id)
+      FOREIGN KEY (list_id) REFERENCES User(list_id) ON DELETE CASCADE ON UPDATE CASCADE,
+      FOREIGN KEY (game_id) REFERENCES Game(game_id) ON DELETE CASCADE ON UPDATE CASCADE
       )";
 
       if ($this->connection->query($create_contains) === TRUE) {
@@ -961,6 +1202,28 @@ function UpdateGame()
       }
 
       return true;
+    }
+
+    function CreateReviewsTable()
+    {
+      // sql to create Reviews table if it doesn't already exist
+      $sql = "CREATE TABLE IF NOT EXISTS Reviews (
+      username VARCHAR(30) NOT NULL,
+      game_id INT(6) UNSIGNED NOT NULL,
+      rating INT(1) UNSIGNED,
+      text_review TEXT,
+      PRIMARY KEY (username, game_id),
+      FOREIGN KEY (username) REFERENCES User(username) ON DELETE CASCADE ON UPDATE CASCADE,
+      FOREIGN KEY (game_id) REFERENCES Game(game_id) ON DELETE CASCADE ON UPDATE CASCADE
+      )";
+
+      if ($this->connection->query($sql) === TRUE) {
+          echo "Table Reviews created successfully";
+          echo "\r\n";
+      } else {
+        $this->HandleDBError("Error creating the table \nquery was\n $sql");
+          echo "\r\n";
+      }
     }
 
     function InsertIntoDB(&$formvars)
