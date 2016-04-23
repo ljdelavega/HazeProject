@@ -6,6 +6,14 @@ $page_keywords = array("game collection", "video game tracker", "track games", "
 /* Note: Always load the config file for each page */
 require_once("resources/config.php");
 require_once(TEMPLATES_PATH . "/header.php");
+
+if(isset($_POST['submitted']))
+{
+   if($site->RegisterGame())
+   {
+        echo "Thanks for registering! \r\n";
+   }
+}
 ?>
 
 <!-- Insert content here -->
@@ -23,8 +31,8 @@ require_once(TEMPLATES_PATH . "/header.php");
 					<input type="text" id="genre" class="form-control" placeholder="e.g. First-person shooter" required autofocus autocomplete>
 				</div>
 				<div class="form-group">
-					<label for="hours_played">Hours played *</label>
-					<input type="text" id="hours_played" class="form-control" placeholder="e.g. 23" required autofocus autocomplete>
+					<label for="price">Price *</label>
+					<input type="text" id="price" class="form-control" placeholder="e.g. 23" required autofocus autocomplete>
 				</div>
 				<div class="form-group">
 					<label for="completion_state">Completion state *</label>
@@ -44,6 +52,7 @@ require_once(TEMPLATES_PATH . "/header.php");
 
 				<input type="submit" name="signup" class="btn btn-primary" value="Add game">
         <a class="btn btn-default" href="main.php" role="button">Back to Game List</a>
+		<div><span class='error'><?php echo $site->GetErrorMessage(); ?></span></div>
 			</form>
 
       <br />
@@ -51,5 +60,16 @@ require_once(TEMPLATES_PATH . "/header.php");
 	</div>
 </div>
 <!-- End content -->
+<script type='text/javascript'>
+
+    var frmvalidator  = new Validator("signup");
+    frmvalidator.EnableOnPageErrorDisplay();
+    frmvalidator.EnableMsgsTogether();
+    $validator->addValidation("game_name","req","Please enter the title!");
+    $validator->addValidation("genre","req","Please enter the genre!");
+    $validator->addValidation("price","req","Please enter the price!");
+    $validator->addValidation("completion_state","req","Please select a completion state!");
+
+</script>
 
 <?php require_once(TEMPLATES_PATH . "/footer.php"); ?>
