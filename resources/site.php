@@ -681,6 +681,94 @@ class Site
         return true;
     }
 
+function UpdateGame()
+    {
+        if(!isset($_POST['submitted']))
+        {
+           return false;
+        }
+
+        $formvars = array();
+
+        $this->CollectGameSubmission($formvars);
+
+        if(!$this->VerifyGameUpdate($formvars))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    function CollectGameUpdateSubmission(&$formvars)
+    {
+        $formvars['game_name'] = $this->Sanitize($_POST['game_name']);
+        $formvars['genre'] = $this->Sanitize($_POST['genre']);
+        $formvars['price'] = $this->Sanitize($_POST['price']);
+    }
+
+    function VerifyGameUpdate(&$formvars)
+    {
+        if(!$this->DBLogin())
+        {
+            $this->HandleError("Database login failed!");
+            return false;
+        }
+        if(!$this->EnsureGametable())
+        {
+            return false;
+        }
+
+        if(!$this->UpdateGameDB($formvars))
+        {
+            $this->HandleError("Updating the Database failed!");
+            return false;
+        }
+        return true;
+    }
+
+    function UpdateGameDB(&$formvars)
+    {
+        if(!$this->DBLogin())
+        {
+            $this->HandleError("Database login failed!");
+            return false;
+        }
+        // Get variables from form
+        $gamename = $this->SanitizeForSQL($formvars["game_name"]);
+        $genre = $this->SanitizeForSQL($formvars["genre"]);
+        $price = $this->SanitizeForSQL($formvars["price"]);
+        $update_query = "UPDATE Game SET game_name='$gamename', genre='$genre', price='$price'";
+
+        if(!mysqli_query($this->connection, $update_query))
+        {
+            $this->HandleDBError("Error updating data in the Game table\nquery:$update_query");
+            return false;
+        }
+        return true;
+    }
+
+    function DeleteGame()
+    {
+      if(!$this->DBLogin())
+      {
+          $this->HandleError("Database login failed!");
+          return false;
+      }
+
+      // sql to delete a User record
+      $delete_query = "DELETE FROM Game WHERE game_name = '$gamename'";
+
+      if (mysqli_query($this->connection, $delete_query)) {
+          echo "User: " . $username . " deleted successfully";
+      } else {
+          $this->HandleDBError("Error deleting title from the Game table\nquery:$delete_query");
+          return false;
+      }
+
+      return true;
+    }	
+	
     function ValidateGameSubmission()
     {
         //This is a hidden input field. Humans won't fill this field.
