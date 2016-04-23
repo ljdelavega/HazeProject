@@ -11,7 +11,7 @@ if(isset($_POST['submitted']))
 {
    if($site->RegisterGame())
    {
-        echo "Thanks for registering! \r\n";
+        echo "Added a new game! \r\n";
    }
 }
 ?>
@@ -21,7 +21,7 @@ if(isset($_POST['submitted']))
 	<div class="row">
     <div class="col-xs-6">
       <h1>Add new game to your game list</h1>
-      <form id='signup' action='<?php echo $site->GetSelfScript(); ?>' method='post' accept-charset='UTF-8'>
+      <form id='gameadd' action='<?php echo $site->GetSelfScript(); ?>' method='post' accept-charset='UTF-8'>
 				<input type='hidden' name='submitted' id='submitted' value='1'/>
 				<div class="form-group">
 					<label for="game_name">Game Name *</label>
@@ -33,25 +33,29 @@ if(isset($_POST['submitted']))
 				</div>
 				<div class="form-group">
 					<label for="price">Price *</label>
-					<input type="text" id="price" name="price" value ="<?php echo $site->SafeDisplay('price') ?>" class="form-control" placeholder="e.g. 23" required autofocus autocomplete>
+					<input type="number" id="price" name="price" value ="<?php echo $site->SafeDisplay('price') ?>" class="form-control" placeholder="e.g. 69.99" required autofocus autocomplete>
+				</div>
+        <div class="form-group">
+					<label for="hours">Hours Played *</label>
+					<input type="number" id="hours" name="hours" value ="<?php echo $site->SafeDisplay('hours') ?>" class="form-control" placeholder="e.g. 20" required autofocus autocomplete>
 				</div>
 				<div class="form-group">
 					<label for="completion_state">Completion state *</label>
           <div class="radio">
-            <label><input type="radio" id="completion_state" name="optradio">Unplayed</label>
+            <label><input type="radio" id="completion_state" value="<?php echo $site->SafeDisplay('unplayed') ?>" name="completion_state" checked="checked">Unplayed</label>
           </div>
           <div class="radio">
-            <label><input type="radio" id="completion_state" name="optradio">Unfinished</label>
+            <label><input type="radio" id="completion_state" value="<?php echo $site->SafeDisplay('unfinished') ?>" name="completion_state">Unfinished</label>
           </div>
           <div class="radio">
-            <label><input type="radio" id="completion_state" name="optradio">Completed</label>
+            <label><input type="radio" id="completion_state" value="<?php echo $site->SafeDisplay('completed') ?>" name="completion_state">Completed</label>
           </div>
           <div class="radio">
-            <label><input type="radio" id="completion_state" name="optradio">Other</label>
+            <label><input type="radio" id="completion_state" value="<?php echo $site->SafeDisplay('other') ?>" name="completion_state">Other</label>
           </div>
 				</div>
 
-				<input type="submit" name="signup" class="btn btn-primary" value="Add game">
+				<input type="submit" name="gameadd" class="btn btn-primary" value="Add game">
         <a class="btn btn-default" href="main.php" role="button">Back to Game List</a>
 		<div><span class='error'><?php echo $site->GetErrorMessage(); ?></span></div>
 			</form>
