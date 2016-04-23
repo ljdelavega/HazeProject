@@ -113,7 +113,7 @@ class Site
 
         return true;
     }
-    
+
     function Login()
     {
         if(empty($_POST['username']))
@@ -786,7 +786,6 @@ function UpdateGame()
         $validator->addValidation("game_name","req","Please enter the title!");
         $validator->addValidation("genre","req","Please enter the genre!");
         $validator->addValidation("price","req","Please enter the price!");
-        //$validator->addValidation("completion_state","req","Please select a completion state!");
 
         if(!$validator->ValidateForm())
         {
@@ -807,6 +806,8 @@ function UpdateGame()
         $formvars['game_name'] = $this->Sanitize($_POST['game_name']);
         $formvars['genre'] = $this->Sanitize($_POST['genre']);
         $formvars['price'] = $this->Sanitize($_POST['price']);
+        $formvars['hours'] = $this->Sanitize($_POST['hours']);
+        $formvars['completion_state'] = $this->Sanitize($_POST['completion_state']);
     }
 
     function SaveGameToDatabase(&$formvars)
@@ -833,7 +834,7 @@ function UpdateGame()
         }
         return true;
     }
-    
+
     function IsFieldUnique($formvars,$fieldname)
     {
         $field_val = $this->SanitizeForSQL($formvars[$fieldname]);
@@ -873,7 +874,7 @@ function UpdateGame()
         }
         return true;
     }
-    
+
     function EnsureGametable()
     {
         $result = mysqli_query($this->connection, "SHOW COLUMNS FROM $this->tablename");
@@ -883,7 +884,7 @@ function UpdateGame()
         }
         return true;
     }
-    
+
     function CreateTable()
     {
         // sql to create User table if it doesn't already exist
@@ -906,22 +907,61 @@ function UpdateGame()
 
     function CreateGameTable()
     {
-        // sql to create User table if it doesn't already exist
-        $qry = "CREATE TABLE IF NOT EXISTS Game (
-		game_id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-		game_name VARCHAR(50) NOT NULL,
-		price DECIMAL(10,2) NOT NULL,
-		genre VARCHAR(30) NOT NULL
-		)";
+      // sql to create User table if it doesn't already exist
+      $create_game = "CREATE TABLE IF NOT EXISTS Game (
+  		game_id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  		game_name VARCHAR(50) NOT NULL,
+  		price DECIMAL(10,2) NOT NULL,
+  		genre VARCHAR(30) NOT NULL
+  		)";
 
-        if (!($this->connection->query($qry) === TRUE))
-        {
-            $this->HandleDBError("Error creating the table \nquery was\n $qry");
-            return false;
-        }
-        return true;
+      if (!($this->connection->query($create_game) === TRUE))
+      {
+          $this->HandleDBError("Error creating the table \nquery was\n $create_game");
+          return false;
+      }
+
+      // sql to create CompletionState table if it doesn't already exist
+      $create_completionstate = "CREATE TABLE IF NOT EXISTS CompletionState (
+      list_id INT(6) UNSIGNED,
+      game_id INT(6) UNSIGNED,
+      hours INT(8) UNSIGNED,
+      percent_complete DECIMAL(2,1),
+      date_completed DATETIME,
+      state VARCHAR(30),
+      PRIMARY KEY (list_id, game_id),
+      FOREIGN KEY (list_id) REFERENCES User(list_id),
+      FOREIGN KEY (game_id) REFERENCES Game(game_id)
+      )";
+
+      if ($this->connection->query($create_completionstate) === TRUE) {
+          echo "Table CompletionState created successfully";
+          echo "\r\n";
+      } else {
+          $this->HandleDBError("Error creating the table \nquery was\n $create_completionstate");
+          return false;
+      }
+
+      // sql to create Contains table if it doesn't already exist
+      $create_contains = "CREATE TABLE IF NOT EXISTS Contains (
+      list_id INT(6) UNSIGNED,
+      game_id INT(6) UNSIGNED,
+      PRIMARY KEY (list_id, game_id),
+      FOREIGN KEY (list_id) REFERENCES User(list_id),
+      FOREIGN KEY (game_id) REFERENCES Game(game_id)
+      )";
+
+      if ($this->connection->query($create_contains) === TRUE) {
+          echo "Table Contains created successfully";
+          echo "\r\n";
+      } else {
+        $this->HandleDBError("Error creating the table \nquery was\n $create_contains");
+        return false;
+      }
+
+      return true;
     }
-    
+
     function InsertIntoDB(&$formvars)
     {
         $insert_query = 'INSERT INTO '.$this->tablename.'(
@@ -949,7 +989,8 @@ function UpdateGame()
 
     function InsertGameIntoDB(&$formvars)
     {
-        $insert_query = 'INSERT INTO '.Game.'(
+        //insert into Game table
+        $game_query = 'INSERT INTO Game (
                 game_name,
                 genre,
                 price
@@ -960,14 +1001,54 @@ function UpdateGame()
                 "' . $this->SanitizeForSQL($formvars['genre']) . '",
                 "' . $this->SanitizeForSQL($formvars['price']) . '"
                 )';
-        if(!($this->connection->query($insert_query) === TRUE))
+        if(!($this->connection->query($game_query) === TRUE))
         {
-            $this->HandleDBError("Error inserting data to the table\nquery:$insert_query");
+            $this->HandleDBError("Error inserting data to the table\nquery:$game_query");
+            return false;
+        }
+
+        //get the id of the last generated query, in this case: game_id
+        $game_id = mysqli_insert_id ( $this->connection );
+
+        // now insert and link to CompletionState table
+        //insert into Game table
+        $state_query = 'INSERT INTO CompletionState (
+                game_id,
+                list_id,
+                hours,
+                state
+                )
+                values
+                (
+                "' . $game_id . '",
+                "' . $_SESSION['list_id'] . '",
+                "' . $this->SanitizeForSQL($formvars['hours']) . '",
+                "' . $this->SanitizeForSQL($formvars['completion_state']) . '"
+                )';
+        if(!($this->connection->query($state_query) === TRUE))
+        {
+            $this->HandleDBError("Error inserting data to the table\nquery:$state_query");
+            return false;
+        }
+
+        //Finally insert and link to Contains relationship table.
+        $contains_query = 'INSERT INTO Contains (
+                game_id,
+                list_id
+                )
+                values
+                (
+                "' . $game_id . '",
+                "' . $_SESSION['list_id'] . '"
+                )';
+        if(!($this->connection->query($contains_query) === TRUE))
+        {
+            $this->HandleDBError("Error inserting data to the table\nquery:$contains_query");
             return false;
         }
         return true;
     }
-    
+
     function SanitizeForSQL($str)
     {
         if( function_exists( "mysqli_real_escape_string" ) )
