@@ -70,7 +70,7 @@ if ($conn->query($sql) === TRUE) {
 // sql to create Reviews table if it doesn't already exist
 $sql = "CREATE TABLE IF NOT EXISTS Reviews (
 username VARCHAR(30) NOT NULL UNIQUE,
-game_id INT(6) UNSIGNED,
+game_id INT(6) UNSIGNED NOT NULL UNIQUE,
 rating INT(1) UNSIGNED,
 text_review TEXT,
 PRIMARY KEY (username, game_id),
