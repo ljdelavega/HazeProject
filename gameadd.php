@@ -19,6 +19,7 @@ if(isset($_POST['submitted']))
    if($site->RegisterGame())
    {
         echo "Added a new game! \r\n";
+		$site->RedirectToURL("main.php");
    }
 }
 ?>
