@@ -6,6 +6,13 @@ $page_keywords = array("game collection", "video game tracker", "track games", "
 /* Note: Always load the config file for each page */
 require_once("resources/config.php");
 require_once(TEMPLATES_PATH . "/header.php");
+
+// ensure the user is logged in
+if(!$site->CheckLogin())
+{
+    $site->RedirectToURL("login.php");
+    exit;
+}
 ?>
 
 <!-- Insert content here -->

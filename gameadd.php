@@ -7,6 +7,13 @@ $page_keywords = array("game collection", "video game tracker", "track games", "
 require_once("resources/config.php");
 require_once(TEMPLATES_PATH . "/header.php");
 
+// ensure the user is logged in
+if(!$site->CheckLogin())
+{
+    $site->RedirectToURL("login.php");
+    exit;
+}
+
 if(isset($_POST['submitted']))
 {
    if($site->RegisterGame())

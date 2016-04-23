@@ -7,7 +7,13 @@ $page_keywords = array("game collection", "video game tracker", "track games", "
 require_once("resources/config.php");
 require_once(TEMPLATES_PATH . "/header.php");
 
-// TODO: for some reason the user isn't actually being deleted.
+// ensure the user is logged in
+if(!$site->CheckLogin())
+{
+    $site->RedirectToURL("login.php");
+    exit;
+}
+
 if($site->DeleteUser())
 {
 	// log the current user out.
