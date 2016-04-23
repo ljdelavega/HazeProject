@@ -25,15 +25,15 @@ if(isset($_POST['submitted']))
 				<input type='hidden' name='submitted' id='submitted' value='1'/>
 				<div class="form-group">
 					<label for="game_name">Game Name *</label>
-					<input type="text" id="game_name" class="form-control" placeholder="e.g. Super Mario Bros." required autofocus autocomplete>
+					<input type="text" id="game_name" value ="<?php echo $site->SafeDisplay('game_name') ?>" class="form-control" placeholder="e.g. Super Mario Bros." required autofocus autocomplete>
 				</div>
 				<div class="form-group">
 					<label for="genre">Genre *</label>
-					<input type="text" id="genre" class="form-control" placeholder="e.g. First-person shooter" required autofocus autocomplete>
+					<input type="text" id="genre" value ="<?php echo $site->SafeDisplay('genre') ?>" class="form-control" placeholder="e.g. First-person shooter" required autofocus autocomplete>
 				</div>
 				<div class="form-group">
 					<label for="price">Price *</label>
-					<input type="text" id="price" class="form-control" placeholder="e.g. 23" required autofocus autocomplete>
+					<input type="text" id="price" value ="<?php echo $site->SafeDisplay('price') ?>" class="form-control" placeholder="e.g. 23" required autofocus autocomplete>
 				</div>
 				<div class="form-group">
 					<label for="completion_state">Completion state *</label>
