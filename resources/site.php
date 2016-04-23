@@ -755,14 +755,15 @@ function UpdateGame()
           $this->HandleError("Database login failed!");
           return false;
       }
-	  $formvars = array();
-	  $formvars['game_name'] = $this->Sanitize($_POST['game_name']);
-	  $gamename = $this->SanitizeForSQL($formvars["game_name"]);
+	  //$formvars = array();
+	  //$formvars['game_name'] = $this->Sanitize($_POST['game_name']);
+	  //$game_id = $this->SanitizeForSQL($formvars["game_name"]);
       // sql to delete a User record
-      $delete_query = "DELETE FROM Game WHERE game_name = '$gamename'";
+	  $game_id = $_SESSION['game_id'];
+      $delete_query = "DELETE FROM Game WHERE game_id = '$game_id'";
 
       if (mysqli_query($this->connection, $delete_query)) {
-          echo "Game: " . $gamename . " deleted successfully";
+          echo "Game deleted successfully";
       } else {
           $this->HandleDBError("Error deleting title from the Game table\nquery:$delete_query");
           return false;

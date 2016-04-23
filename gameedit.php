@@ -100,15 +100,11 @@ if(isset($_POST['deleted']))
 		<div class="panel-heading">Delete Game</div>
 		<div class="panel-body">
 		<p>
-			Enter the name of the title you wish to Delete.
+			Are You Sure?!
 		</p>
 		<form id='delete' action='<?php echo $site->GetSelfScript(); ?>' method='post' accept-charset='UTF-8'>
 				<input type='hidden' name='deleted' id='deleted' value='1'/>
-				<div class="form-group">
-					<label for="game_name">Game Name *</label>
-					<input type="text" id="game_name" name="game_name" class="form-control" placeholder="e.g. Super Mario Bros." required autofocus autocomplete>
-				</div>
-				<input type="submit" name="Delete" class="btn btn-primary" value="Delete">
+				<input type="submit" name="Delete" class="btn btn-primary" value="Yes! Delete">
 			</form>
     </div>
 	</div>
