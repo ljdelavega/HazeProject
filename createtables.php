@@ -55,8 +55,8 @@ $sql = "CREATE TABLE IF NOT EXISTS Contains (
 list_id INT(6) UNSIGNED,
 game_id INT(6) UNSIGNED,
 PRIMARY KEY (list_id, game_id),
-FOREIGN KEY (list_id) REFERENCES User(list_id),
-FOREIGN KEY (game_id) REFERENCES Game(game_id)
+FOREIGN KEY (list_id) REFERENCES User(list_id) ON DELETE CASCADE ON UPDATE CASCADE,
+FOREIGN KEY (game_id) REFERENCES Game(game_id) ON DELETE CASCADE ON UPDATE CASCADE
 )";
 
 if ($conn->query($sql) === TRUE) {
@@ -74,8 +74,8 @@ game_id INT(6) UNSIGNED NOT NULL,
 rating INT(1) UNSIGNED,
 text_review TEXT,
 PRIMARY KEY (username, game_id),
-FOREIGN KEY (username) REFERENCES User(username),
-FOREIGN KEY (game_id) REFERENCES Game(game_id)
+FOREIGN KEY (username) REFERENCES User(username) ON DELETE CASCADE ON UPDATE CASCADE,
+FOREIGN KEY (game_id) REFERENCES Game(game_id) ON DELETE CASCADE ON UPDATE CASCADE
 )";
 
 if ($conn->query($sql) === TRUE) {
@@ -95,8 +95,8 @@ percent_complete DECIMAL(2,1),
 date_completed DATETIME,
 state VARCHAR(30),
 PRIMARY KEY (list_id, game_id),
-FOREIGN KEY (list_id) REFERENCES User(list_id),
-FOREIGN KEY (game_id) REFERENCES Game(game_id)
+FOREIGN KEY (list_id) REFERENCES User(list_id) ON DELETE CASCADE ON UPDATE CASCADE,
+FOREIGN KEY (game_id) REFERENCES Game(game_id) ON DELETE CASCADE ON UPDATE CASCADE
 )";
 
 if ($conn->query($sql) === TRUE) {
