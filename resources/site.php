@@ -735,7 +735,7 @@ class Site
             $this->HandleError("This title already exists");
             return false;
         }
-        if(!$this->InsertIntoDB($formvars))
+        if(!$this->InsertGameIntoDB($formvars))
         {
             $this->HandleError("Inserting to Database failed!");
             return false;
@@ -828,6 +828,27 @@ class Site
         return true;
     }
 
+    function InsertGameIntoDB(&$formvars)
+    {
+        $insert_query = 'INSERT INTO '.$this->tablename.'(
+                game_name,
+                genre,
+                price,
+                )
+                values
+                (
+                "' . $this->SanitizeForSQL($formvars['game_name']) . '",
+                "' . $this->SanitizeForSQL($formvars['genre']) . '",
+                "' . $this->SanitizeForSQL($formvars['price']) . '"
+                )';
+        if(!($this->connection->query($insert_query) === TRUE))
+        {
+            $this->HandleDBError("Error inserting data to the table\nquery:$insert_query");
+            return false;
+        }
+        return true;
+    }
+    
     function SanitizeForSQL($str)
     {
         if( function_exists( "mysqli_real_escape_string" ) )
