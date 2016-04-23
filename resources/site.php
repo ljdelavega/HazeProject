@@ -695,7 +695,7 @@ class Site
         $validator->addValidation("game_name","req","Please enter the title!");
         $validator->addValidation("genre","req","Please enter the genre!");
         $validator->addValidation("price","req","Please enter the price!");
-        $validator->addValidation("completion_state","req","Please select a completion state!");
+        //$validator->addValidation("completion_state","req","Please select a completion state!");
 
         if(!$validator->ValidateForm())
         {
