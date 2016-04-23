@@ -37,7 +37,7 @@ if ($conn->query($sql) === TRUE) {
 // sql to create Game table if it doesn't already exist
 $sql = "CREATE TABLE IF NOT EXISTS Game (
 game_id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-name VARCHAR(50) NOT NULL,
+game_name VARCHAR(50) NOT NULL,
 price DECIMAL(10,2) NOT NULL,
 genre VARCHAR(30) NOT NULL
 )";
