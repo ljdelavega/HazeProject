@@ -28,7 +28,9 @@ $list_id = $_SESSION['list_id'];
 			<h1>Welcome <?php echo $username;?>!</h1>
       <p><?php echo $firstname;?> <?php echo $lastname;?></p>
 		</div>
-
+    <div class="col-xs-12">
+			<a href="gameadd.php" class="btn btn-primary">Add Game</a>
+		</div>
     <div class="col-xs-12">
       <h1>Your Game List</h1>
       <table class="table table-striped">
@@ -49,7 +51,7 @@ $list_id = $_SESSION['list_id'];
 					{
 	           while ($row = mysqli_fetch_array($gamelist)) {?>
 	               <tr>
-	               <td><?php echo $row['name'];?></td>
+	               <td><?php echo $row['game_name'];?></td>
 	               <td><?php echo $row['price'];?></td>
 	               <td><?php echo $row['genre'];?></td>
 	               <td>

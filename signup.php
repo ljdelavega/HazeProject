@@ -12,6 +12,8 @@ if(isset($_POST['submitted']))
    if($site->RegisterUser())
    {
         echo "Thanks for registering! \r\n";
+        $site->RedirectToURL("login.php");
+        exit;
    }
 }
 
