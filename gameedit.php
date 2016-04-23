@@ -14,23 +14,6 @@ if(!$site->CheckLogin())
     exit;
 }
 
-// get vars based on passed in game_id from session
-$game_id = $_GET['game'];
-$_SESSION['game_id'] = $game_id;
-$game_result = $site->GetGameByID($game_id);
-if (!$game_result)
-{
-	echo "There is no game with this ID: " . $game_id ;
-}
-$game = mysqli_fetch_array($game_result);
-
-$completion_state_result = $site->GetCompletionStateByID($game_id);
-if (!$completion_state_result)
-{
-	echo "There is no completion state with this ID: " . $game_id ;
-}
-$completion_state = mysqli_fetch_array($completion_state_result);
-
 // user submits update
 if(isset($_POST['submitted']))
 {
@@ -50,6 +33,23 @@ if(isset($_POST['deleted']))
 			$site->RedirectToURL("main.php");
 	}
 }
+
+// get vars based on passed in game_id from session
+$game_id = $_GET['game'];
+$_SESSION['game_id'] = $game_id;
+$game_result = $site->GetGameByID($game_id);
+if (!$game_result)
+{
+	echo "There is no game with this ID: " . $game_id ;
+}
+$game = mysqli_fetch_array($game_result);
+
+$completion_state_result = $site->GetCompletionStateByID($game_id);
+if (!$completion_state_result)
+{
+	echo "There is no completion state with this ID: " . $game_id ;
+}
+$completion_state = mysqli_fetch_array($completion_state_result);
 ?>
 
 <!-- Insert content here -->

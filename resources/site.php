@@ -796,9 +796,9 @@ function UpdateGame()
           $this->HandleError("Database login failed!");
           return false;
       }
-	  
-      // sql to delete a User record
-	  $game_id = $_SESSION['game_id'];
+
+      // sql to delete a Game record
+	    $game_id = $_SESSION['game_id'];
       $delete_query = "DELETE FROM Game WHERE game_id = '$game_id'";
 
       if (mysqli_query($this->connection, $delete_query)) {
