@@ -827,7 +827,10 @@ class Site
       }
 
       // get rows from the Game relation and join with Contains to get the user's games.
-      $qry = "SELECT * FROM Reviews";
+      $qry =  "SELECT * FROM Reviews
+                INNER JOIN Game
+                ON Game.game_id = Reviews.game_id
+              ";
       $reviewslist = mysqli_query($this->connection, $qry);
       if(!$reviewslist)
       {

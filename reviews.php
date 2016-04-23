@@ -57,11 +57,18 @@ $list_id = $_SESSION['list_id'];
     {
       while ($row = mysqli_fetch_array($reviewslist)) {?>
         <div class="col-xs-12 col-sm-6 col-md-3">
-          <h2><?php echo $row['game_id'];?></h2>
+          <h2><?php echo $row['name'];?></h2>
           <p>Reviewed by <a href="#"><?php echo $row['username'];?></a></p>
           <p>Rating: <?php echo $row['rating'];?></p>
           <p>
-            <?php echo $row['text-review'];?>
+            <?php
+              if(strlen($row['text_review']) > 300)
+              {
+                echo substr($row['text_review'], 0, 300). '...';
+              }else{
+                echo $row['text_review'];
+              }
+            ?>
           </p>
           <p><a href="#">Read full review ></a></p>
         </div>
