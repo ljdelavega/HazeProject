@@ -442,6 +442,29 @@ class Site
         return true;
     }
 
+    function DeleteUser()
+    {
+      if(!$this->DBLogin())
+      {
+          $this->HandleError("Database login failed!");
+          return false;
+      }
+
+      $list_id = $_SESSION['list_id'];
+      $username = $_SESSION['username'];
+      // sql to delete a User record
+      $delete_query = "DELETE FROM User WHERE username = '$username' AND list_id='$list_id'";
+
+      if (mysqli_query($this->connection, $delete_query)) {
+          echo "User: " . $username . " deleted successfully";
+      } else {
+          $this->HandleDBError("Error deleting user from the User table\nquery:$delete_query");
+          return false;
+      }
+
+      return true;
+    }
+
     function ResetUserPasswordInDB($user_rec)
     {
         $new_password = substr(md5(uniqid()),0,10);
