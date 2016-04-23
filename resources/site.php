@@ -858,10 +858,10 @@ class Site
 
     function InsertGameIntoDB(&$formvars)
     {
-        $insert_query = 'INSERT INTO '.$this->tablename.'(
+        $insert_query = 'INSERT INTO '.Game.'(
                 game_name,
                 genre,
-                price,
+                price
                 )
                 values
                 (
