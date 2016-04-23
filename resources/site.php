@@ -90,6 +90,30 @@ class Site
         return true;
     }
 
+    function RegisterGame()
+    {
+        if(!isset($_POST['submitted']))
+        {
+           return false;
+        }
+
+        $formvars = array();
+
+        if(!$this->ValidateGameSubmission())
+        {
+            return false;
+        }
+
+        $this->CollectGameSubmission($formvars);
+
+        if(!$this->SaveGameToDatabase($formvars))
+        {
+            return false;
+        }
+
+        return true;
+    }
+    
     function Login()
     {
         if(empty($_POST['username']))
@@ -657,6 +681,68 @@ class Site
         return true;
     }
 
+    function ValidateGameSubmission()
+    {
+        //This is a hidden input field. Humans won't fill this field.
+        if(!empty($_POST[$this->GetSpamTrapInputName()]) )
+        {
+            //The proper error is not given intentionally
+            $this->HandleError("Automated submission prevention: case 2 failed");
+            return false;
+        }
+
+        $validator = new FormValidator();
+        $validator->addValidation("game_name","req","Please enter the title!");
+        $validator->addValidation("genre","req","Please enter the genre!");
+        $validator->addValidation("price","req","Please enter the price!");
+        $validator->addValidation("completion_state","req","Please select a completion state!");
+
+        if(!$validator->ValidateForm())
+        {
+            $error='';
+            $error_hash = $validator->GetErrors();
+            foreach($error_hash as $inpname => $inp_err)
+            {
+                $error .= $inpname.':'.$inp_err."\n";
+            }
+            $this->HandleError($error);
+            return false;
+        }
+        return true;
+    }
+
+    function CollectGameSubmission(&$formvars)
+    {
+        $formvars['game_name'] = $this->Sanitize($_POST['game_name']);
+        $formvars['genre'] = $this->Sanitize($_POST['genre']);
+        $formvars['price'] = $this->Sanitize($_POST['price']);
+    }
+
+    function SaveGameToDatabase(&$formvars)
+    {
+        if(!$this->DBLogin())
+        {
+            $this->HandleError("Database login failed!");
+            return false;
+        }
+        if(!$this->Ensuretable())
+        {
+            return false;
+        }
+
+        if(!$this->IsFieldUnique($formvars,'game_name'))
+        {
+            $this->HandleError("This title already exists");
+            return false;
+        }
+        if(!$this->InsertIntoDB($formvars))
+        {
+            $this->HandleError("Inserting to Database failed!");
+            return false;
+        }
+        return true;
+    }
+    
     function IsFieldUnique($formvars,$fieldname)
     {
         $field_val = $this->SanitizeForSQL($formvars[$fieldname]);
