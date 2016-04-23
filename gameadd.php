@@ -33,7 +33,7 @@ if(isset($_POST['submitted']))
 				</div>
 				<div class="form-group">
 					<label for="price">Price *</label>
-					<input type="number" id="price" name="price" value ="<?php echo $site->SafeDisplay('price') ?>" class="form-control" placeholder="e.g. 69.99" required autofocus autocomplete>
+					<input type="number" id="price" name="price" min="0.01" step="0.01" max="2500" value ="<?php echo $site->SafeDisplay('price') ?>" class="form-control" placeholder="e.g. 69.99" required autofocus autocomplete>
 				</div>
         <div class="form-group">
 					<label for="hours">Hours Played *</label>
