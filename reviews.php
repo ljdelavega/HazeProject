@@ -30,6 +30,44 @@ $list_id = $_SESSION['list_id'];
 
 		</div>
 
+    <?php
+    //Get all reviews in the database.
+    $reviewslist = $site->GetAllReviews();
+    if (!$reviewslist)
+    {
+      echo    "
+              <div class='col-xs-12'>
+                <br />
+                <br />
+                <p class='lead'>
+                  There are currently no reviews on Haze.
+                </p>
+                <p class='lead'>
+                  <strong>Help us fix that by contributing your own review!</strong>
+                </p>
+                <p class='lead label label-info'>Fame! Fortune! Bragging rights!</p>
+                <p class='lead'>Gain fame and immortality by being the first to head back to your game list and submit a review!</p>
+                </p><a class='btn btn-default btn-lg' href='main.php' role='button'>Back to Game List</a></p>
+
+
+              </div>
+              ";
+    }
+    else
+    {
+      while ($row = mysqli_fetch_array($reviewslist)) {?>
+        <div class="col-xs-12 col-sm-6 col-md-3">
+          <h2><?php echo $row['game_id'];?></h2>
+          <p>Reviewed by <a href="#"><?php echo $row['username'];?></a></p>
+          <p>Rating: <?php echo $row['rating'];?></p>
+          <p>
+            <?php echo $row['text-review'];?>
+          </p>
+          <p><a href="#">Read full review ></a></p>
+        </div>
+<?php }
+		} ?>
+    <!--
     <div class="col-xs-3">
       <h2>Dynasty Warrior</h2>
       <p>Reviewed by <a href="#">{{username}}</a></p>
@@ -116,6 +154,7 @@ $list_id = $_SESSION['list_id'];
       </p>
       <p><a href="#">Read full review ></a></p>
     </div>
+  -->
 	</div>
 </div>
 <!-- End content -->

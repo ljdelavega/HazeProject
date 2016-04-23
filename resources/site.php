@@ -817,5 +817,32 @@ class Site
       return $gamelist;
 
     }
+
+    function GetAllReviews()
+    {
+      if(!$this->DBLogin())
+      {
+          $this->HandleError("Database login failed!");
+          return false;
+      }
+
+      // get rows from the Game relation and join with Contains to get the user's games.
+      $qry = "SELECT * FROM Reviews";
+      $reviewslist = mysqli_query($this->connection, $qry);
+      if(!$reviewslist)
+      {
+        $this->HandleError("Error getting Reviews relation. Query was: " . $qry);
+        return false;
+      }
+
+      if(mysqli_num_rows($reviewslist) <= 0)
+      {
+          $this->HandleError("There are no reviews found.");
+          return false;
+      }
+
+      return $reviewslist;
+
+    }
 }
 ?>
