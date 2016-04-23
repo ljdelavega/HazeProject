@@ -21,7 +21,8 @@ if(isset($_POST['submitted']))
 	<div class="row">
     <div class="col-xs-6">
       <h1>Add new game to your game list</h1>
-      <form>
+      <form id='signup' action='<?php echo $site->GetSelfScript(); ?>' method='post' accept-charset='UTF-8'>
+				<input type='hidden' name='submitted' id='submitted' value='1'/>
 				<div class="form-group">
 					<label for="game_name">Game Name *</label>
 					<input type="text" id="game_name" class="form-control" placeholder="e.g. Super Mario Bros." required autofocus autocomplete>
