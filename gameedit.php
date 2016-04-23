@@ -15,7 +15,8 @@ if(!$site->CheckLogin())
 }
 
 // get vars based on passed in game_id from session
-$game_id = $_SESSION['game_id'];
+$game_id = $_GET['game'];
+$_SESSION['game_id'] = $game_id;
 $game_result = $site->GetGameByID($game_id);
 if (!$game_result)
 {
