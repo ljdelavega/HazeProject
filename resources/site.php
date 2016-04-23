@@ -725,7 +725,7 @@ class Site
             $this->HandleError("Database login failed!");
             return false;
         }
-        if(!$this->Ensuretable())
+        if(!$this->EnsureGametable())
         {
             return false;
         }
@@ -782,7 +782,17 @@ class Site
         }
         return true;
     }
-
+    
+    function EnsureGametable()
+    {
+        $result = mysqli_query($this->connection, "SHOW COLUMNS FROM $this->tablename");
+        if(!$result || mysqli_num_rows($result) <= 0)
+        {
+            return $this->CreateGameTable();
+        }
+        return true;
+    }
+    
     function CreateTable()
     {
         // sql to create User table if it doesn't already exist
@@ -803,6 +813,24 @@ class Site
         return true;
     }
 
+    function CreateGameTable()
+    {
+        // sql to create User table if it doesn't already exist
+        $qry = "CREATE TABLE IF NOT EXISTS Game (
+		game_id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+		game_name VARCHAR(50) NOT NULL,
+		price DECIMAL(10,2) NOT NULL,
+		genre VARCHAR(30) NOT NULL
+		)";
+
+        if (!($this->connection->query($qry) === TRUE))
+        {
+            $this->HandleDBError("Error creating the table \nquery was\n $qry");
+            return false;
+        }
+        return true;
+    }
+    
     function InsertIntoDB(&$formvars)
     {
         $insert_query = 'INSERT INTO '.$this->tablename.'(
