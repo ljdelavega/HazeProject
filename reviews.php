@@ -26,7 +26,7 @@ $list_id = $_SESSION['list_id'];
 	<div class="row">
 		<div class="col-xs-12 bg-primary">
 			<h1>Reviews</h1>
-      <p>Read user reviews of the games that they own.</p>
+      <p class="lead">Read user reviews of the games that they own.</p>
 
 		</div>
 
