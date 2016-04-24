@@ -71,6 +71,7 @@ $list_id = $_SESSION['list_id'];
             ?>
           </p>
           <p><a href="#">Read full review ></a></p>
+		  <p><a href="reviewedit.php?game=<?php echo $row['game_id'];?>">Edit Review ></a></p>
         </div>
         <?php
           //Add clearfix if row is filled up
