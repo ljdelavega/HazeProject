@@ -30,6 +30,7 @@ $list_id = $_SESSION['list_id'];
 		</div>
     <div class="col-xs-12">
 			<a href="gameadd.php" class="btn btn-primary">Add Game</a>
+			<a href="importfromsteam.php" class="btn btn-success">Import Games from Steam</a>
 		</div>
     <div class="col-xs-12">
       <h1>Your Game List</h1>
