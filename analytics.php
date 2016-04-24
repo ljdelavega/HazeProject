@@ -47,9 +47,11 @@ else
 // prevent divide by 0 errors
 if ($total_hours < 1)
 {
-  $total_hours = 1;
+  $total_price_vs_hours = 0;
 }
-$total_price_vs_hours = round (($total_price / $total_hours), 2);
+else {
+  $total_price_vs_hours = round (($total_price / $total_hours), 2);
+}
 ?>
 
 <!-- Insert content here -->

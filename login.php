@@ -37,7 +37,6 @@ require_once(TEMPLATES_PATH . "/header.php");
 				</div>
 
 				<input type="submit" name="login" class="btn btn-primary" value="Log In">
-				<div class='short_explanation'><a href='resetpwd.php'>Forgot Password?</a></div>
 				<div><span class='error'><?php echo $site->GetErrorMessage(); ?></span></div>
 			</form>
 		</div>
