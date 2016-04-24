@@ -72,6 +72,13 @@ $list_id = $_SESSION['list_id'];
           </p>
           <p><a href="#">Read full review ></a></p>
         </div>
+        <?php
+          //Add clearfix if row is filled up
+          if(count($row)%4 == 0)
+          {
+            echo "<div class='clearfix'></div>";
+          }
+        ?>
 <?php }
 		} ?>
     <!--
