@@ -13,6 +13,26 @@ if(!$site->CheckLogin())
     $site->RedirectToURL("login.php");
     exit;
 }
+
+if(isset($_POST['submitted']))
+{
+   if($site->ImportSteamGames())
+   {
+      echo "
+        <div class='container'>
+          <div class='row'>
+            <div class='col-xs-12'>
+              <h1>Success!</h1>
+              <p class='lead'>Added a Steam library to your game list!</p>
+              <a class='btn btn-default' href='main.php' role='button'>Back to Game List</a>
+            </div>
+          </div>
+        </div>
+
+        ";
+		  $site->RedirectToURL("main.php");
+   }
+}
 ?>
 
 <!-- Insert content here -->
@@ -22,13 +42,16 @@ if(!$site->CheckLogin())
 			<h1>Import from Steam <small>Get Your Game Names in Haze</small></h1>
 			<p class="lead">As a gamer, you might have a game library on Steam that you'd like to see in Haze. Don't worry, you don't have to enter anything in manually.</p>
 			<p>For ease of use, we'll give you the option to import your game library from Steam into your Haze library.</p>
-			<form>
-			  <div class="form-group">
+			<form id='importfromsteam' action='<?php echo $site->GetSelfScript(); ?>' method='post' accept-charset='UTF-8'>
+        <input type='hidden' name='submitted' id='submitted' value='1'/>
+        <div class="form-group">
 			    <label for="steam_id">Your Steam ID</label>
-			    <input type="text" class="form-control" id="steam_id" placeholder="e.g. http://steamcommunity.com/id/example">
+			    <input type="text" name="steam_id" value ="<?php echo $site->SafeDisplay('steam_id') ?>" class="form-control" id="steam_id" placeholder="e.g. http://steamcommunity.com/id/example">
 			  </div>
-			  <button type="submit" class="btn btn-primary">Import Steam Library</button>
+        <div id="spinner" style="display:none;"><img src="img/spinner.gif" alt="Loading animation" /></div>
+			  <input type="submit" name="importfromsteam" class="btn btn-primary" value="Import Steam library" onclick="toggle_visibility('spinner')";>
 				<p>Don't have a Steam account? <a href="#">Skip this step</a></p>
+        <div><span class='error'><?php echo $site->GetErrorMessage(); ?></span></div>
 			</form>
 		</div>
 		<div class="col-lg-3 col-md-6 col-sm-6 hidden-xs center-block">
@@ -38,4 +61,15 @@ if(!$site->CheckLogin())
 </div>
 <!-- End content -->
 
+<script type="text/javascript">
+<!--
+    function toggle_visibility(id) {
+       var e = document.getElementById(id);
+       if(e.style.display == 'block')
+          e.style.display = 'none';
+       else
+          e.style.display = 'block';
+    }
+//-->
+</script>
 <?php require_once(TEMPLATES_PATH . "/footer.php"); ?>
