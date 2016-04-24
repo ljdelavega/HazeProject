@@ -52,7 +52,8 @@ $game = mysqli_fetch_array($game_result);
       <h1>Edit Your Review</h1>
       <form id='update' action='<?php echo $site->GetSelfScript(); ?>' method='post' accept-charset='UTF-8'>
 				<input type='hidden' name='submitted' id='submitted' value='1'/>
-
+        <input type='hidden' name='username' id='username' value='<?php echo $_SESSION['username'] ?>'/>
+				<input type='hidden' name='game_id' id='game_id' value='<?php echo $_SESSION['game_id'] ?>'/>
 				<div class="form-group">
 					<label for="rating">Rating *</label>
 					<select name="rating" value = "<?php echo $game['rating'];?>" class="form-control" id="rating">
