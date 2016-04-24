@@ -930,8 +930,8 @@ function UpdateGame()
             return false;
         }
         // Get variables from form
-        $username = $this->SanitizeForSQL($formvars["username"]);
-        $game_id = $this->SanitizeForSQL($formvars["game_id"]);
+        $username = $_SESSION['username'];
+        $game_id = $_SESSION['game_id'];
         $rating = $this->SanitizeForSQL($formvars["rating"]);
         $text_review = $this->SanitizeForSQL($formvars["text_review"]);
         $update_query = "UPDATE Reviews SET rating='$rating', text_review='$text_review' WHERE game_id = '$game_id' AND username = '$username'";
