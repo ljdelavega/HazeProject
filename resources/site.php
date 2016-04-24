@@ -951,10 +951,8 @@ function UpdateGame()
           $this->HandleError("Database login failed!");
           return false;
       }
-    $formvars = array();
-    $formvars['username'] = $this->Sanitize($_POST['username']);
-    $formvars['game_id'] = $this->Sanitize($_POST['game_name']);
-    $gamename = $this->SanitizeForSQL($formvars["game_id"]);
+    $username = $_SESSION['username'];
+    $game_id = $_SESSION['game_id'];
       // sql to delete a Delete record
       $delete_query = "DELETE FROM Reviews WHERE username = '$username' and game_id = '$game_id'";
 

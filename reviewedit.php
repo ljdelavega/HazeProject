@@ -14,6 +14,7 @@ if(!$site->CheckLogin())
     exit;
 }
 
+$username = $_SESSION['username'];
 // user submits update
 if(isset($_POST['submitted']))
 {
@@ -27,7 +28,7 @@ if(isset($_POST['submitted']))
 //user clicks delete
 if(isset($_POST['deleted']))
 {
-	if ($site->DeleteGame())
+	if ($site->DeleteReview())
 	{
 		echo "Game successfully deleted! \r\n";
 			$site->RedirectToURL("reviews.php");
@@ -36,10 +37,10 @@ if(isset($_POST['deleted']))
 // get vars based on passed in game_id from session
 $game_id = $_GET['game'];
 $_SESSION['game_id'] = $game_id;
-$game_result = $site->GetGameByID($game_id);
+$game_result = $site->GetAllReviews();
 if (!$game_result)
 {
-	echo "There is no game with this ID: " . $game_id ;
+	echo "There are no reviews";
 }
 $game = mysqli_fetch_array($game_result);
 ?>
@@ -54,7 +55,7 @@ $game = mysqli_fetch_array($game_result);
 
 				<div class="form-group">
 					<label for="rating">Rating *</label>
-					<select name="rating" class="form-control" id="rating">
+					<select name="rating" value = "<?php echo $game['rating'];?>" class="form-control" id="rating">
 						<option value="5">5</option>
 						<option value="4">4</option>
 						<option value="3">3</option>
@@ -64,7 +65,7 @@ $game = mysqli_fetch_array($game_result);
 				</div>
 				<div class="form-group">
 					<label for="text-review">Text Review *</label>
-					<textarea id="text-review" name="text_review" class="form-control" value ="<?php echo $site->SafeDisplay('text_review') ?>" rows="15" placeholder="Talk about your experiences with the game. Did you enjoy it? What parts did you like and dislike?" required autofocus autocomplete></textarea>
+					<textarea id="text-review" name="text_review" class="form-control" value = "<?php echo $game['text_review'];?>"  rows="15" placeholder="Talk about your experiences with the game. Did you enjoy it? What parts did you like and dislike?" required autofocus autocomplete></textarea>
 				</div>
 				
 				<input type="submit" name="gameedit" class="btn btn-primary" value="Save edits">
@@ -87,5 +88,5 @@ $game = mysqli_fetch_array($game_result);
 	</div>
 </div>
 <!-- End content -->
-
+<?php var_dump($_POST);?>
 <?php require_once(TEMPLATES_PATH . "/footer.php"); ?>
