@@ -1637,7 +1637,7 @@ function UpdateGame()
               $hours_played = (int)($owned_game['playtime_forever'] / 60);
 
               //Step 4 - Get price of game - use json (as 3rd-party library doesn't cover this)
-              $json = $this->curl_get_contents(file_get_contents('http://store.steampowered.com/api/appdetails?appids='.$game['appid']));
+              $json = $this->curl_get_contents('http://store.steampowered.com/api/appdetails?appids='.$game['appid']);
               $obj = json_decode($json, true);
 
               $price = 0.00;
