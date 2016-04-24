@@ -67,7 +67,7 @@ $game = mysqli_fetch_array($game_result);
 					<label for="text-review">Text Review *</label>
 					<textarea id="text-review" name="text_review" class="form-control" value = "<?php echo $game['text_review'];?>"  rows="15" placeholder="Talk about your experiences with the game. Did you enjoy it? What parts did you like and dislike?" required autofocus autocomplete></textarea>
 				</div>
-				
+
 				<input type="submit" name="gameedit" class="btn btn-primary" value="Save edits">
         <a class="btn btn-default" href="main.php" role="button">Back to Reviews</a>
 			</form>
@@ -88,5 +88,4 @@ $game = mysqli_fetch_array($game_result);
 	</div>
 </div>
 <!-- End content -->
-<?php var_dump($_POST);?>
 <?php require_once(TEMPLATES_PATH . "/footer.php"); ?>
