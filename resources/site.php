@@ -18,6 +18,15 @@ http://www.html-form-guide.com/php-form/php-registration-form.html
 http://www.html-form-guide.com/php-form/php-login-form.html
 
 */
+require './vendor/autoload.php';
+
+use GuzzleHttp\Client;
+use Steam\Configuration;
+use Steam\Runner\GuzzleRunner;
+use Steam\Runner\DecodeJsonStringRunner;
+use Steam\Steam;
+use Steam\Utility\GuzzleUrlBuilder;
+
 require_once("library/class.phpmailer.php");
 require_once("library/formvalidator.php");
 
@@ -1503,5 +1512,211 @@ function UpdateGame()
       return $reviewslist;
 
     }
+
+
+    function ImportSteamGames()
+    {
+      if(!isset($_POST['submitted']))
+      {
+         return false;
+      }
+
+      $formvars = array();
+
+      if(!$this->ValidateSteamImportSubmission())
+      {
+          return false;
+      }
+
+      $this->CollectSteamImportSubmission($formvars);
+
+      if(!$this->SaveSteamImportToDatabase($formvars))
+      {
+          return false;
+      }
+
+      return true;
+    }
+
+    function ValidateSteamImportSubmission()
+    {
+        //This is a hidden input field. Humans won't fill this field.
+        if(!empty($_POST[$this->GetSpamTrapInputName()]) )
+        {
+            //The proper error is not given intentionally
+            $this->HandleError("Automated submission prevention: case 2 failed");
+            return false;
+        }
+
+        $validator = new FormValidator();
+        $validator->addValidation("steam_id","req","Please enter a STEAM ID!");
+
+        if(!$validator->ValidateForm())
+        {
+            $error='';
+            $error_hash = $validator->GetErrors();
+            foreach($error_hash as $inpname => $inp_err)
+            {
+                $error .= $inpname.':'.$inp_err."\n";
+            }
+            $this->HandleError($error);
+            return false;
+        }
+        return true;
+    }
+
+    function CollectSteamImportSubmission(&$formvars)
+    {
+        $formvars['steam_id'] = $this->Sanitize($_POST['steam_id']);
+    }
+
+    function SaveSteamImportToDatabase(&$formvars)
+    {
+
+      try
+      {
+        //Step 1 - Grab games from a user's library
+        $steam = new Steam(new Configuration([
+      Configuration::STEAM_KEY => '45750008A6F992F05F0A64C334083BC8'
+        ]));
+
+        $steam->addRunner(new GuzzleRunner(new Client(), new GuzzleUrlBuilder()));
+        $steam->addRunner(new DecodeJsonStringRunner());
+
+        //We will first get the entire list of games on Steam
+        $get_all_games = $steam->run(new \Steam\Command\Apps\GetAppList());
+
+        $full_game_list = $get_all_games['applist']['apps'];
+
+        //Then we will get the list of games in a user's library
+        $get_owned_games = $steam->run(new \Steam\Command\PlayerService\GetOwnedGames($formvars['steam_id']));
+
+        //Games_array contains array of games, where each game is represented by
+        //game id and playtime_forever, e.g.
+        //games_array[0] = [id][playtime_forever]
+        $games_array = $get_owned_games['response']['games'];
+
+        $games_to_add = array();
+        foreach($games_array as $owned_game)
+        {
+          //Compare game ids of user's games and total list of games on Steam
+          //Get game name based on app id
+          foreach($full_game_list as $game)
+          {
+            if($game['appid'] == $owned_game['appid'])
+            {
+              //Step 2 - Get game name
+              $game_name = (string)$game['name'];
+              //Step 3 - Get hours played
+              $hours_played = (int)$owned_game['playtime_forever'];
+
+              //Step 4 - Get price of game - use json (as 3rd-party library doesn't cover this)
+              $json = $this->curl_get_contents(file_get_contents('http://store.steampowered.com/api/appdetails?appids='.$game['appid']));
+              $obj = json_decode($json, true);
+
+              $price = 0.00;
+              $genre = "Unknown";
+              $completion_state = "Unplayed";
+
+              //Get price from json: appid -> data -> price_overview -> initial (price)
+              if(isset($obj[(string)$game['appid']]) &&
+              isset($obj[(string)$game['appid']]['data']) &&
+              isset($obj[(string)$game['appid']]['data']['price_overview']) &&
+              isset($obj[(string)$game['appid']]['data']['price_overview']['initial']))
+              {
+                //Price is returned without any decimal values
+                $price = (int)$obj[((string)$game['appid'])] ['data'] ['price_overview'] ['initial'];
+                $price = number_format(($price/100),2);
+              }
+
+              //Step 5 - Get genre from json: appid -> data -> genres (take first genre) -> description
+              if(isset($obj[(string)$game['appid']]) &&
+              isset($obj[(string)$game['appid']]['data']) &&
+              isset($obj[(string)$game['appid']]['data']['genres']))
+              {
+                //Just grab the first genre
+                $genre = (string)$obj[((string)$game['appid'])] ['data'] ['genres'] [0] ['description'];
+              }
+
+              //Step 6 - Set completion state from 'Unplayed' to 'Unfinished' if # of hours > 0
+              if($hours_played > 0)
+              {
+                $completion_state = "Unfinished";
+              }
+
+              array_push($games_to_add, array($game_name, $hours_played, $price, $genre, $completion_state));
+            }
+          }
+        }
+
+        $formvars = array
+        (
+        );
+
+        //Add each game found to the database
+        foreach($games_to_add as $game_to_add)
+        {
+          $formvars['game_name'] = $this->Sanitize($game_to_add[0]);
+          $formvars['genre'] = $this->Sanitize($game_to_add[3]);
+          $formvars['price'] = $this->Sanitize((float)$game_to_add[2]);
+          $formvars['hours'] = $this->Sanitize($game_to_add[1]);
+          $formvars['completion_state'] = $this->Sanitize($game_to_add[4]);
+
+          if(!$this->SaveGameToDatabase($formvars))
+          {
+              return false;
+          }
+
+        }
+      //try
+      }
+      catch(Exception $e)
+      {
+        echo
+          "<div class='container'>
+            <div class='row'>
+              <div class='col-xs-12'>
+                <h1>Error: Could not insert Steam library into database.</h1>
+                <h2>Error Details: " . $e->getMessage() . "</h2>
+                <p class='lead'>
+                  Did you try making sure that you:
+                  <ul>
+                    <li>entered in a valid Steam ID? (an integer value)?</li>
+                      <ul>
+                        <li>If you are receiving <strong>500 Internal Server Error</strong> messages, this might be the culprit.</li>
+                      </ul>
+                    <li>entered a Steam ID that has games?</li>
+                    <li>entered a Steam ID whose profile is set to public?
+                      <ul>
+                        <li>(We can't poll for a user's game library if their profile is set to friends-only or private)</li>
+                      </ul>
+                  </ul>
+                  Occasionally, the API might reject access due to rate limiting; if this is the case, just simply enter the Steam ID again.
+                  </p>
+                  <p>
+                    <a class='btn btn-default btn-lg' href='importfromsteam.php' role='button'>Try Entering Steam ID Again</a><br />
+                  </p>
+              </div>
+            </div>
+          </div>
+          ";
+        die();
+      }
+      return true;
+    }
+
+    function curl_get_contents($url)
+    {
+      $ch = curl_init($url);
+      curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+      curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+      curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+      curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+      $data = curl_exec($ch);
+      curl_close($ch);
+      return $data;
+    }
+
+
 }
 ?>
