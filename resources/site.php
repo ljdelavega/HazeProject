@@ -1598,6 +1598,8 @@ function UpdateGame()
 
       try
       {
+        // Add more time for the import to execute.
+        ini_set('max_execution_time', 300); //300 seconds = 5 minutes
         //Step 1 - Grab games from a user's library
         $steam = new Steam(new Configuration([
       Configuration::STEAM_KEY => '45750008A6F992F05F0A64C334083BC8'
@@ -1631,14 +1633,15 @@ function UpdateGame()
               //Step 2 - Get game name
               $game_name = (string)$game['name'];
               //Step 3 - Get hours played
-              $hours_played = (int)$owned_game['playtime_forever'];
+              // divide by 60 to get hours, not minutes.
+              $hours_played = (int)($owned_game['playtime_forever'] / 60);
 
               //Step 4 - Get price of game - use json (as 3rd-party library doesn't cover this)
               $json = $this->curl_get_contents(file_get_contents('http://store.steampowered.com/api/appdetails?appids='.$game['appid']));
               $obj = json_decode($json, true);
 
               $price = 0.00;
-              $genre = "Unknown";
+              $genre = "Other";
               $completion_state = "Unplayed";
 
               //Get price from json: appid -> data -> price_overview -> initial (price)

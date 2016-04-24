@@ -44,6 +44,11 @@ else
        $total_hours += $completion_state['hours'];
      }
 }
+// prevent divide by 0 errors
+if ($total_hours < 1)
+{
+  $total_hours = 1;
+}
 $total_price_vs_hours = round (($total_price / $total_hours), 2);
 ?>
 
@@ -101,7 +106,15 @@ $total_price_vs_hours = round (($total_price / $total_hours), 2);
 	               <td><?php echo $row['game_name'];?></td>
 	               <td><?php echo $row['price'];?></td>
 	               <td><?php echo $completion_state['hours'];?></td>
-                 <td><?php echo round(($row['price'] / $completion_state['hours']), 2);?></td>
+                 <td><?php
+                 $hours = $completion_state['hours'];
+                 // prevent divide by 0 errors
+                 if ($hours < 1)
+                 {
+                   $hours = 1;
+                 }
+                 echo round(($row['price'] / $hours), 2);
+                 ?></td>
 	               </tr>
 	  	<?php }
 					} ?>
