@@ -42,15 +42,16 @@ if(isset($_POST['submitted']))
 			<h1>Import from Steam <small>Get Your Game Names in Haze</small></h1>
 			<p class="lead">As a gamer, you might have a game library on Steam that you'd like to see in Haze. Don't worry, you don't have to enter anything in manually.</p>
 			<p>For ease of use, we'll give you the option to import your game library from Steam into your Haze library.</p>
+      <p><strong>Example ID:</strong> 76561198025201892</p>
 			<form id='importfromsteam' action='<?php echo $site->GetSelfScript(); ?>' method='post' accept-charset='UTF-8'>
         <input type='hidden' name='submitted' id='submitted' value='1'/>
         <div class="form-group">
 			    <label for="steam_id">Your Steam ID</label>
-			    <input type="text" name="steam_id" value ="<?php echo $site->SafeDisplay('steam_id') ?>" class="form-control" id="steam_id" placeholder="e.g. http://steamcommunity.com/id/example">
+			    <input type="text" name="steam_id" value ="<?php echo $site->SafeDisplay('steam_id') ?>" class="form-control" id="steam_id" placeholder="an integer -- e.g. 76561198025201892">
 			  </div>
         <div id="spinner" style="display:none;"><img src="img/spinner.gif" alt="Loading animation" /></div>
 			  <input type="submit" name="importfromsteam" class="btn btn-primary" value="Import Steam library" onclick="toggle_visibility('spinner')";>
-				<p>Don't have a Steam account? <a href="#">Skip this step</a></p>
+				<p>Don't have a Steam account? <a href="main.php">No worries, head back to your game list >></a></p>
         <div><span class='error'><?php echo $site->GetErrorMessage(); ?></span></div>
 			</form>
 		</div>
