@@ -18,6 +18,7 @@ http://www.html-form-guide.com/php-form/php-registration-form.html
 http://www.html-form-guide.com/php-form/php-login-form.html
 
 */
+//Autoload is necessary to grab the dependencies, e.g. the Steam PHP API and its dependencies
 require './vendor/autoload.php';
 
 use GuzzleHttp\Client;
@@ -1514,6 +1515,10 @@ function UpdateGame()
     }
 
 
+    /**
+     * Begins the import of Steam games based on the Steam ID in _POST.
+     * @return True if successful, false if not.
+     */
     function ImportSteamGames()
     {
       if(!isset($_POST['submitted']))
@@ -1538,6 +1543,10 @@ function UpdateGame()
       return true;
     }
 
+    /**
+     * Validates the steam_id variable in _POST.
+     * @return True if successful, false if not.
+     */
     function ValidateSteamImportSubmission()
     {
         //This is a hidden input field. Humans won't fill this field.
@@ -1565,11 +1574,25 @@ function UpdateGame()
         return true;
     }
 
+    /**
+     * Gathers the steam_id as a form variable to submit into the database.
+     * @param Array $formvars   Where the Steam ID is stored.
+     */
     function CollectSteamImportSubmission(&$formvars)
     {
         $formvars['steam_id'] = $this->Sanitize($_POST['steam_id']);
     }
 
+    /**
+     * Performs operations to grab Steam library information using the steam_id.
+     * Uses the Steam PHP library to get the games from a user's library and compare it with
+     * the entire set of games on Steam, in order to get the game names.
+     * Also uses JSON to cover prices, and genre, which aren't covered by the Steam PHP library.
+     * @param Array $formvars   Where the Steam ID is stored.
+     * @return True if all Steam games are successfully saved to the Game database; false if not.
+     * @throws Guzzle/ClientException if there are problems getting the data using the Steam PHP library.
+     * @throws Exception if there are some other things (unlikely).
+     */
     function SaveSteamImportToDatabase(&$formvars)
     {
 
@@ -1705,6 +1728,12 @@ function UpdateGame()
       return true;
     }
 
+    /**
+     * Uses cURL to get the contents of the URL.
+     * See: http://stackoverflow.com/questions/20562368/file-get-contents-how-to-fix-error-failed-to-open-stream-no-such-file
+     * This is used to fix "Failed to open stream" errors when calling file_get_contents.
+     * @param String $url   The URL to be used as input into cURL.
+     */
     function curl_get_contents($url)
     {
       $ch = curl_init($url);
